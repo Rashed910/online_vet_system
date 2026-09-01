@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Details - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <a href="{% url 'vet_booked_appointments' %}" class="text-xs text-emerald-600 font-semibold hover:underline mb-2 inline-block">
+                <i class="fa-solid fa-arrow-left"></i> Back to Queue
+            </a>
+            <h1 class="text-2xl font-bold text-slate-900">Patient: {{ patient.pet_name }}</h1>
+            <p class="text-slate-500 text-xs">Owner: {{ patient.user.get_full_name }} | Species: {{ patient.species }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+            {% if appointment.status == 'PENDING' %}
+            <span class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-semibold text-xs">Pending</span>
+            {% elif appointment.status == 'CONFIRMED' %}
+            <span class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full font-semibold text-xs">Confirmed</span>
+            {% elif appointment.status == 'COMPLETED' %}
+            <span class="bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full font-semibold text-xs">Completed</span>
+            {% else %}
+            <span class="bg-red-100 text-red-700 px-3 py-1.5 rounded-full font-semibold text-xs">{{ appointment.status }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Patient Info Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+                <i class="fa-solid fa-feather text-emerald-600"></i> Pet Details
+            </h2>
+            <div class="space-y-2 text-xs">
+                <div><span class="text-slate-400 block">Pet Name</span><span class="font-semibold text-slate-800">{{ patient.pet_name }}</span></div>
+                <div><span class="text-slate-400 block">Species</span><span class="font-semibold text-slate-800">{{ patient.species }}</span></div>
+                <div><span class="text-slate-400 block">Breed</span><span class="font-semibold text-slate-800">{{ patient.breed|default:"-" }}</span></div>
+                <div><span class="text-slate-400 block">Age</span><span class="font-semibold text-slate-800">{{ patient.age|default:"-" }} years</span></div>
+                <div><span class="text-slate-400 block">Weight</span><span class="font-semibold text-slate-800">{{ patient.weight|default:"-" }} kg</span></div>
+            </div>
+            <div class="border-t border-slate-100 pt-3 space-y-2 text-xs">
+                <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user text-emerald-600"></i> Owner</h3>
+                <div><span class="text-slate-400 block">Name</span><span class="font-semibold text-slate-800">{{ patient.user.get_full_name }}</span></div>
+                <div><span class="text-slate-400 block">Email</span><span class="font-semibold text-slate-800">{{ patient.user.email }}</span></div>
+                <div><span class="text-slate-400 block">Phone</span><span class="font-semibold text-slate-800">{{ patient.user.phone|default:"-" }}</span></div>
+                <div><span class="text-slate-400 block">Address</span><span class="font-semibold text-slate-800">{{ patient.user.address|default:"-" }}</span></div>
+            </div>
+            <div class="border-t border-slate-100 pt-3 text-xs">
+                <h3 class="font-bold text-slate-900 flex items-center gap-2 mb-2"><i class="fa-solid fa-calendar text-emerald-600"></i> Appointment</h3>
+                <div><span class="text-slate-400 block">Date</span><span class="font-semibold text-slate-800">{{ appointment.date }}</span></div>
+                <div><span class="text-slate-400 block">Time</span><span class="font-semibold text-slate-800">{{ appointment.time|time:"h:i A" }}</span></div>
+                <div><span class="text-slate-400 block">Fee</span><span class="font-semibold text-slate-800">BDT {{ appointment.fee }}</span></div>
+            </div>
+        </div>
+
+        <!-- Medical History & Prescription Forms -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Add Diagnosis / Medical History + Prescription Form -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <i class="fa-solid fa-notes-medical text-emerald-600"></i> <span id="diagnosis-form-title">Add Diagnosis / Medical History</span>
+                </h2>
+                <form method="post" id="diagnosis-form" class="space-y-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" id="diagnosis-action" value="add_medical_history">
+                    <input type="hidden" name="history_id" id="diagnosis-history-id" value="">
+                    <div>
+                        <label class="block text-slate-600 mb-1 text-xs">Date</label>
+                        <input type="date" name="date" id="diagnosis-date" value="{{ appointment.date|date:'Y-m-d' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 mb-1 text-xs">Diagnosis *</label>
+                        <textarea name="diagnosis" id="diagnosis-text" rows="2" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Respiratory infection, feather plucking, etc."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 mb-1 text-xs">Notes</label>
+                        <textarea name="notes" id="diagnosis-notes" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="Additional observations..."></textarea>
+                    </div>
+
+                    <!-- Prescription / Medical Suggestion Section -->
+                    <div class="border-t border-slate-100 pt-3 mt-3 space-y-3">
+                        <h3 class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-pills text-emerald-600"></i> Prescription / Medical Suggestion
+                        </h3>
+                        <div>
+                            <label class="block text-slate-600 mb-1 text-xs">Medicines</label>
+                            <textarea name="medicines" id="diagnosis-medicines" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Vitamin B-complex, Antibiotic X, Probiotics..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-slate-600 mb-1 text-xs">Dosage</label>
+                                <input type="text" name="dosage" id="diagnosis-dosage" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 1 tablet, 5ml">
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 mb-1 text-xs">Frequency</label>
+                                <input type="text" name="frequency" id="diagnosis-frequency" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Twice daily">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 text-xs">Duration</label>
+                            <input type="text" name="duration" id="diagnosis-duration" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 7 days, 2 weeks">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 text-xs flex items-center gap-1">
+                                <i class="fa-solid fa-comment-medical text-emerald-600"></i>
+                                <span class="font-bold text-slate-700">Medical Suggestion</span>
+                                <span class="text-slate-400 text-[10px]">(visible to patient in their medical history)</span>
+                            </label>
+                            <textarea name="medical_suggestion" id="diagnosis-suggestion" rows="3" class="w-full border-2 border-emerald-200 bg-emerald-50/30 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Keep the pet hydrated, give vitamin supplements daily, avoid cold environment, follow-up in 7 days..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="hidden bg-slate-100 text-slate-600 text-xs font-semibold px-4 py-2.5 rounded-xl transition">
+                            Cancel
+                        </button>
+                        <button type="submit" id="diagnosis-submit-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm">
+                            <i class="fa-solid fa-plus"></i> Save Diagnosis & Prescription
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Update Status Form -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Update Appointment Status
+                </h2>
+                <div class="flex gap-2">
+                    <select id="status-select" class="flex-1 border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                        <option value="PENDING" {% if appointment.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                        <option value="CONFIRMED" {% if appointment.status == 'CONFIRMED' %}selected{% endif %}>Confirmed</option>
+                        <option value="COMPLETED" {% if appointment.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                        <option value="CANCELLED" {% if appointment.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                    <button type="button" id="update-status-btn" data-appointment-id="{{ appointment.id }}" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> <span id="status-btn-text">Update Status</span>
+                    </button>
+                </div>
+                <div id="status-feedback" class="hidden"></div>
+            </div>
+
+            <!-- Medical History Records -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <i class="fa-solid fa-folder-open text-emerald-600"></i> Medical History Records
+                </h2>
+                <div class="space-y-2">
+                    {% for history in medical_histories %}
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                        <div class="flex justify-between font-bold text-slate-700 text-xs">
+                            <span>{{ history.diagnosis|truncatewords:15 }}</span>
+                            <span class="text-slate-400 text-[10px]">{{ history.date }}</span>
+                        </div>
+                        {% if history.notes %}<p class="text-slate-600 text-[11px]"><span class="font-semibold">Notes:</span> {{ history.notes }}</p>{% endif %}
+                        {% if history.medicines or history.dosage or history.frequency or history.duration %}
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 space-y-1">
+                            <p class="text-[10px] font-bold text-blue-700 flex items-center gap-1">
+                                <i class="fa-solid fa-pills"></i> Prescription
+                            </p>
+                            {% if history.medicines %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Medicines:</span> {{ history.medicines }}</p>{% endif %}
+                            {% if history.dosage %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Dosage:</span> {{ history.dosage }}</p>{% endif %}
+                            {% if history.frequency %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Frequency:</span> {{ history.frequency }}</p>{% endif %}
+                            {% if history.duration %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Duration:</span> {{ history.duration }}</p>{% endif %}
+                        </div>
+                        {% endif %}
+                        {% if history.medical_suggestion %}
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+                            <p class="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                                <i class="fa-solid fa-comment-medical"></i> Medical Suggestion:
+                            </p>
+                            <p class="text-[11px] text-emerald-800 mt-1">{{ history.medical_suggestion }}</p>
+                        </div>
+                        {% endif %}
+                        <div class="flex gap-2 pt-1">
+                            <button onclick="editHistory({{ history.id }}, '{{ history.diagnosis|escapejs }}', '{{ history.notes|escapejs }}', '{{ history.date|date:'Y-m-d' }}', '{{ history.medical_suggestion|escapejs|default:'' }}', '{{ history.medicines|escapejs|default:'' }}', '{{ history.dosage|escapejs|default:'' }}', '{{ history.frequency|escapejs|default:'' }}', '{{ history.duration|escapejs|default:'' }}')" class="text-blue-600 hover:underline text-[11px] font-semibold">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </button>
+                            <form method="post" class="inline" onsubmit="return confirm('Delete this record?')">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_medical_history">
+                                <input type="hidden" name="history_id" value="{{ history.id }}">
+                                <button type="submit" class="text-red-600 hover:underline text-[11px] font-semibold">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-slate-500 text-xs">No medical history records yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editHistory(id, diagnosis, notes, date, suggestion, medicines, dosage, frequency, duration) {
+    document.getElementById('diagnosis-form-title').textContent = 'Edit Diagnosis / Medical History';
+    document.getElementById('diagnosis-action').value = 'edit_medical_history';
+    document.getElementById('diagnosis-history-id').value = id;
+    document.getElementById('diagnosis-date').value = date;
+    document.getElementById('diagnosis-text').value = diagnosis;
+    document.getElementById('diagnosis-notes').value = notes;
+    document.getElementById('diagnosis-suggestion').value = suggestion || '';
+    document.getElementById('diagnosis-medicines').value = medicines || '';
+    document.getElementById('diagnosis-dosage').value = dosage || '';
+    document.getElementById('diagnosis-frequency').value = frequency || '';
+    document.getElementById('diagnosis-duration').value = duration || '';
+    document.getElementById('diagnosis-submit-btn').innerHTML = '<i class="fa-solid fa-save"></i> Update Diagnosis & Prescription';
+    document.getElementById('cancel-edit-btn').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelEdit() {
+    document.getElementById('diagnosis-form-title').textContent = 'Add Diagnosis / Medical History';
+    document.getElementById('diagnosis-action').value = 'add_medical_history';
+    document.getElementById('diagnosis-history-id').value = '';
+    document.getElementById('diagnosis-text').value = '';
+    document.getElementById('diagnosis-notes').value = '';
+    document.getElementById('diagnosis-suggestion').value = '';
+    document.getElementById('diagnosis-medicines').value = '';
+    document.getElementById('diagnosis-dosage').value = '';
+    document.getElementById('diagnosis-frequency').value = '';
+    document.getElementById('diagnosis-duration').value = '';
+    document.getElementById('diagnosis-submit-btn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Diagnosis & Prescription';
+    document.getElementById('cancel-edit-btn').classList.add('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var updateBtn = document.getElementById('update-status-btn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', function() {
+            var appointmentId = this.dataset.appointmentId;
+            var status = document.getElementById('status-select').value;
+            var btnText = document.getElementById('status-btn-text');
+            var originalText = btnText.textContent;
+            btnText.textContent = 'Updating...';
+            this.disabled = true;
+
+            fetch('/vet/api/update-status/' + appointmentId + '/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: 'status=' + status
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var feedback = document.getElementById('status-feedback');
+                if (data.success) {
+                    feedback.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-2';
+                    feedback.innerHTML = '<i class="fa-solid fa-check-circle"></i> ' + data.message;
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    feedback.className = 'p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2';
+                    feedback.innerHTML = '<i class="fa-solid fa-times-circle"></i> ' + (data.error || 'Update failed');
+                    btnText.textContent = originalText;
+                    updateBtn.disabled = false;
+                }
+                feedback.classList.remove('hidden');
+            })
+            .catch(function(err) {
+                var feedback = document.getElementById('status-feedback');
+                feedback.className = 'p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2';
+                feedback.innerHTML = '<i class="fa-solid fa-times-circle"></i> Network error. Please try again.';
+                feedback.classList.remove('hidden');
+                btnText.textContent = originalText;
+                updateBtn.disabled = false;
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

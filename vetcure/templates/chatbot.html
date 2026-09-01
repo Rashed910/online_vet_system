@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Pet Health Assistant - VetCare{% endblock %}
+
+{% block extra_head %}
+<script>
+const CSRF_TOKEN = "{{ csrf_token }}";
+const CHAT_API_URL = "{% url 'chat_api' %}";
+const SESSION_ID = "{{ session_id }}";
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-2xl w-full mx-auto px-4 py-8">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[520px]">
+        <div class="p-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50 rounded-t-2xl">
+            <div class="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center font-bold">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+                <h2 class="font-bold text-slate-900 text-sm"> Health Assistant</h2>
+                <p class="text-[11px] text-emerald-600 font-medium">Automated Disease Advisor for All Pets</p>
+            </div>
+        </div>
+        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto text-xs">
+            <div class="flex gap-3">
+                <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none max-w-[80%] text-slate-700">
+                    Hello! I am your AI-powered Pet Health Assistant. Ask me about diseases, symptoms, prevention, and care tips for birds, dogs, cats, rabbits, reptiles, and all companion pets.
+                </div>
+            </div>
+        </div>
+        <form id="chat-form" class="p-3 border-t border-slate-100 flex gap-2">
+            <input type="text" id="chat-input" placeholder="Ask about pet health, diseases, symptoms, care tips..." class="flex-grow border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500" autocomplete="off">
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition">Send</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+    const messagesContainer = document.getElementById('chat-messages');
+    let isLoading = false;
+
+    function appendMessage(text, sender) {
+        const div = document.createElement('div');
+        div.className = sender === 'user' ? 'flex justify-end' : 'flex gap-3';
+        const bubble = document.createElement('div');
+        bubble.className = sender === 'user'
+            ? 'bg-emerald-600 text-white p-3 rounded-2xl rounded-tr-none max-w-[80%]'
+            : 'bg-slate-100 p-3 rounded-2xl rounded-tl-none max-w-[80%] text-slate-700';
+        bubble.textContent = text;
+        div.appendChild(bubble);
+        messagesContainer.appendChild(div);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showTyping() {
+        const div = document.createElement('div');
+        div.id = 'typing-indicator';
+        div.className = 'flex gap-3';
+        div.innerHTML = '<div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none max-w-[80%] text-slate-700">Thinking...</div>';
+        messagesContainer.appendChild(div);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+        const el = document.getElementById('typing-indicator');
+        if (el) el.remove();
+    }
+
+    async function sendMessage(message) {
+        if (isLoading || !message.trim()) return;
+        isLoading = true;
+        appendMessage(message, 'user');
+        input.value = '';
+        showTyping();
+
+        try {
+            const response = await fetch(CHAT_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN,
+                },
+                body: JSON.stringify({ message: message }),
+            });
+            const data = await response.json();
+            hideTyping();
+            if (data.reply) {
+                appendMessage(data.reply, 'bot');
+            } else {
+                appendMessage('Sorry, something went wrong.', 'bot');
+            }
+        } catch (error) {
+            hideTyping();
+            appendMessage('Network error. Please try again.', 'bot');
+        } finally {
+            isLoading = false;
+            input.focus();
+        }
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        sendMessage(input.value);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">System Admin Dashboard</h1>
+            <p class="text-slate-500 text-xs mt-1">Monitor appointments, approve payments, and manage the entire system.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'admin_payments' %}" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-bell"></i> {{ pending_payments }} Pending Payments
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total Revenue</span>
+                <i class="fa-solid fa-coins text-emerald-500"></i>
+            </div>
+            <div class="text-2xl font-bold text-emerald-600">BDT {{ total_revenue }}</div>
+            <p class="text-[10px] text-slate-400">All-time paid</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total Refunded</span>
+                <i class="fa-solid fa-rotate-left text-red-500"></i>
+            </div>
+            <div class="text-2xl font-bold text-red-600">BDT {{ total_refunded }}</div>
+            <p class="text-[10px] text-slate-400">Processed refunds</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Today Appointments</span>
+                <i class="fa-solid fa-calendar-day text-blue-500"></i>
+            </div>
+            <div class="text-2xl font-bold text-slate-800">{{ today_appointments }}</div>
+            <p class="text-[10px] text-slate-400">Scheduled for today</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Active Doctors</span>
+                <i class="fa-solid fa-user-doctor text-emerald-500"></i>
+            </div>
+            <div class="text-2xl font-bold text-slate-800">{{ active_doctors }} <span class="text-slate-400 text-sm">/ {{ total_doctors }}</span></div>
+            <p class="text-[10px] text-slate-400">Total registered</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{% url 'admin_appointments' %}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition block">
+            <i class="fa-solid fa-calendar-check text-3xl text-emerald-600 mb-2"></i>
+            <h3 class="font-bold text-slate-900 text-sm">All Appointments</h3>
+            <p class="text-xs text-slate-500">{{ total_appointments }} total bookings</p>
+        </a>
+        <a href="{% url 'admin_payments' %}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition block">
+            <i class="fa-solid fa-credit-card text-3xl text-amber-500 mb-2"></i>
+            <h3 class="font-bold text-slate-900 text-sm">Payment Approvals</h3>
+            <p class="text-xs text-slate-500">{{ pending_payments }} awaiting review</p>
+        </a>
+        <a href="{% url 'admin_patient_management' %}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition block">
+            <i class="fa-solid fa-users text-3xl text-blue-500 mb-2"></i>
+            <h3 class="font-bold text-slate-900 text-sm">Patients</h3>
+            <p class="text-xs text-slate-500">{{ total_patients }} registered</p>
+        </a>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <h2 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-3 flex items-center gap-2">
+            <i class="fa-solid fa-bolt text-emerald-600"></i> Quick Actions
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <a href="{% url 'admin_payments' %}" class="text-center p-3 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold transition">
+                <i class="fa-solid fa-check-circle block text-lg mb-1"></i>
+                Approve Payments
+            </a>
+            <a href="{% url 'admin_appointments' %}" class="text-center p-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition">
+                <i class="fa-solid fa-eye block text-lg mb-1"></i>
+                Monitor Appointments
+            </a>
+            <a href="{% url 'admin_reports' %}" class="text-center p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition">
+                <i class="fa-solid fa-chart-pie block text-lg mb-1"></i>
+                Generate Reports
+            </a>
+            <a href="{% url 'admin_vet_management' %}" class="text-center p-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold transition">
+                <i class="fa-solid fa-user-doctor block text-lg mb-1"></i>
+                Manage Vets
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

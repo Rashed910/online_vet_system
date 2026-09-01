@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel & Refund Slip - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-5xl w-full mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-2">Cancel & Refund Slip</h1>
+    <p class="text-slate-500 text-xs mb-6">View all your cancelled appointments and download refund slips. Refund = 90% of original fee (10% system deduction applies).</p>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 text-slate-500 uppercase">
+                    <tr>
+                        <th class="p-3">Doctor</th>
+                        <th class="p-3">Date</th>
+                        <th class="p-3 text-right">Original Fee</th>
+                        <th class="p-3 text-right">Deduction (10%)</th>
+                        <th class="p-3 text-right">Refund Amount (90%)</th>
+                        <th class="p-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for item in enriched_appointments %}
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-800">Dr. {{ item.appointment.doctor.user.get_full_name }}</td>
+                        <td class="p-3">{{ item.appointment.date|date:"M d, Y" }} | {{ item.appointment.time|time:"h:i A" }}</td>
+                        <td class="p-3 text-right font-semibold text-slate-800">BDT {{ item.original_fee|floatformat:2 }}</td>
+                        <td class="p-3 text-right text-red-600 font-medium">- BDT {{ item.deduction|floatformat:2 }}</td>
+                        <td class="p-3 text-right font-bold text-emerald-600">BDT {{ item.refund_amount|floatformat:2 }}</td>
+                        <td class="p-3 text-right">
+                            {% if item.appointment.refund %}
+                            <a href="{% url 'refund_slip' item.appointment.refund.id %}" target="_blank" class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                                <i class="fa-solid fa-file-invoice-dollar"></i> View Slip
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-500">No cancelled appointments yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Profile - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-3xl w-full mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Manage Profile</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-user text-emerald-600"></i> My Profile
+            </h2>
+            <form method="post" action="{% url 'update_patient_profile' %}" class="space-y-3">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">First Name</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" required>
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Last Name</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Email</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" required>
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Phone</label>
+                    <div class="flex gap-2">
+                        <select name="country_code" class="w-32 border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
+                            <option value="+880" {% if user.country_code == '+880' or not user.country_code %}selected{% endif %}>🇧🇩 +880</option>
+                            <option value="+1" {% if user.country_code == '+1' %}selected{% endif %}>🇺🇸 +1</option>
+                            <option value="+44" {% if user.country_code == '+44' %}selected{% endif %}>🇬🇧 +44</option>
+                            <option value="+91" {% if user.country_code == '+91' %}selected{% endif %}>🇮🇳 +91</option>
+                            <option value="+86" {% if user.country_code == '+86' %}selected{% endif %}>🇨🇳 +86</option>
+                            <option value="+81" {% if user.country_code == '+81' %}selected{% endif %}>🇯🇵 +81</option>
+                            <option value="+82" {% if user.country_code == '+82' %}selected{% endif %}>🇰🇷 +82</option>
+                            <option value="+966" {% if user.country_code == '+966' %}selected{% endif %}>🇸🇦 +966</option>
+                            <option value="+971" {% if user.country_code == '+971' %}selected{% endif %}>🇦🇪 +971</option>
+                            <option value="+92" {% if user.country_code == '+92' %}selected{% endif %}>🇵🇰 +92</option>
+                            <option value="+60" {% if user.country_code == '+60' %}selected{% endif %}>🇲🇾 +60</option>
+                            <option value="+65" {% if user.country_code == '+65' %}selected{% endif %}>🇸🇬 +65</option>
+                            <option value="+62" {% if user.country_code == '+62' %}selected{% endif %}>🇮🇩 +62</option>
+                            <option value="+63" {% if user.country_code == '+63' %}selected{% endif %}>🇵🇭 +63</option>
+                            <option value="+66" {% if user.country_code == '+66' %}selected{% endif %}>🇹🇭 +66</option>
+                            <option value="+84" {% if user.country_code == '+84' %}selected{% endif %}>🇻🇳 +84</option>
+                            <option value="+20" {% if user.country_code == '+20' %}selected{% endif %}>🇪🇬 +20</option>
+                            <option value="+27" {% if user.country_code == '+27' %}selected{% endif %}>🇿🇦 +27</option>
+                            <option value="+234" {% if user.country_code == '+234' %}selected{% endif %}>🇳🇬 +234</option>
+                            <option value="+254" {% if user.country_code == '+254' %}selected{% endif %}>🇰🇪 +254</option>
+                            <option value="+61" {% if user.country_code == '+61' %}selected{% endif %}>🇦🇺 +61</option>
+                            <option value="+64" {% if user.country_code == '+64' %}selected{% endif %}>🇳🇿 +64</option>
+                            <option value="+49" {% if user.country_code == '+49' %}selected{% endif %}>🇩🇪 +49</option>
+                            <option value="+33" {% if user.country_code == '+33' %}selected{% endif %}>🇫🇷 +33</option>
+                            <option value="+39" {% if user.country_code == '+39' %}selected{% endif %}>🇮🇹 +39</option>
+                            <option value="+34" {% if user.country_code == '+34' %}selected{% endif %}>🇪🇸 +34</option>
+                            <option value="+7" {% if user.country_code == '+7' %}selected{% endif %}>🇷🇺 +7</option>
+                            <option value="+55" {% if user.country_code == '+55' %}selected{% endif %}>🇧🇷 +55</option>
+                            <option value="+52" {% if user.country_code == '+52' %}selected{% endif %}>🇲🇽 +52</option>
+                            <option value="+90" {% if user.country_code == '+90' %}selected{% endif %}>🇹🇷 +90</option>
+                        </select>
+                        <input type="text" name="phone" value="{{ user.phone|default:'' }}" placeholder="1XXX-XXXXXX" class="flex-1 border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Address</label>
+                    <textarea name="address" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">{{ user.address }}</textarea>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-xl text-xs">Save Profile</button>
+            </form>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-feather text-emerald-600"></i> Pet Profile
+            </h2>
+            <form method="post" action="{% url 'update_pet_profile' %}" class="space-y-3">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Pet Name</label>
+                    <input type="text" name="pet_name" value="{{ patient.pet_name|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Species</label>
+                    <input type="text" name="species" value="{{ patient.species|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Breed</label>
+                    <input type="text" name="breed" value="{{ patient.breed|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-600 mb-1 text-xs">Age</label>
+                        <input type="number" name="age" value="{{ patient.age|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 mb-1 text-xs">Weight</label>
+                        <input type="text" name="weight" value="{{ patient.weight|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-xl text-xs">Save Pet Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

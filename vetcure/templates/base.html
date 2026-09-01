@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VetCare - Complete Pet Care & Consultation{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+    <style>
+        @media print {
+            body { background: white !important; }
+            .no-print-header, .no-print-footer, header, aside, footer, nav, .sidebar, .no-print {
+                display: none !important;
+            }
+        }
+        .sidebar-link {
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: #059669;
+            border-radius: 0 4px 4px 0;
+            transition: height 0.3s ease;
+        }
+        .sidebar-link:hover::before,
+        .sidebar-link.active::before {
+            height: 60%;
+        }
+        .sidebar-link.active {
+            background: linear-gradient(90deg, #ecfdf5 0%, #f0fdf4 100%);
+            color: #059669;
+            font-weight: 600;
+        }
+        .sidebar-link:hover {
+            background: #f8fafc;
+            transform: translateX(4px);
+        }
+        .menu-section-title {
+            position: relative;
+            padding-left: 12px;
+        }
+        .menu-section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+        .overlay-enter {
+            animation: fadeIn 0.3s ease-out;
+        }
+        .sidebar-enter {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .user-avatar {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.2);
+        }
+        .logout-btn {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen font-sans">
+
+    <!-- Mobile sidebar overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Slide-out Sidebar -->
+    <aside id="sidebar" class="no-print-header fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <!-- Logo -->
+        <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
+            <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                <i class="fa-solid fa-dove text-lg"></i>
+            </div>
+            <span class="text-xl font-bold text-slate-900 tracking-tight">Vet<span class="text-emerald-600">Care</span></span>
+        </div>
+
+        <!-- User Info -->
+        {% if user.is_authenticated %}
+        <div class="px-5 py-4 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="user-avatar w-11 h-11 rounded-full flex items-center justify-center font-bold text-white text-sm">
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-slate-900 truncate">{{ user.get_full_name|default:user.username }}</p>
+                    <p class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">
+                        {% if user.role == 'PATIENT' %}Patient Portal{% elif user.role == 'DOCTOR' %}Vet Panel{% elif user.role == 'ADMIN' %}Admin Panel{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+            
+            <!-- User Panel -->
+            {% if user.is_authenticated and user.role == 'PATIENT' %}
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 menu-section-title">Main Menu</p>
+                <a href="{% url 'patient_dashboard' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'patient_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-house w-4 text-center text-emerald-600"></i> Dashboard
+                </a>
+                <a href="{% url 'booking_doctors' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'booking_doctors' %}active{% endif %}">
+                    <i class="fa-solid fa-user-doctor w-4 text-center text-emerald-600"></i> Find Doctor & Book
+                </a>
+                <a href="{% url 'my_appointments' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'my_appointments' %}active{% endif %}">
+                    <i class="fa-solid fa-calendar-check w-4 text-center text-emerald-600"></i> My Appointments
+                </a>
+                <a href="{% url 'cancel_refund_list' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'cancel_refund_list' %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice-dollar w-4 text-center text-emerald-600"></i> Cancel & Refund Slip
+                </a>
+                <a href="{% url 'chatbot' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'chatbot' %}active{% endif %}">
+                    <i class="fa-solid fa-robot w-4 text-center text-emerald-600"></i> Avian Health Chatbot
+                </a>
+                <a href="{% url 'manage_profile' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'manage_profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-gear w-4 text-center text-emerald-600"></i> Manage Profile
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Vet Panel -->
+            {% if user.is_authenticated and user.role == 'DOCTOR' %}
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 menu-section-title">Main Menu</p>
+                <a href="{% url 'vet_dashboard' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'vet_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-house w-4 text-center text-emerald-600"></i> Doctor Dashboard
+                </a>
+                <a href="{% url 'vet_booked_appointments' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'vet_booked_appointments' %}active{% endif %}">
+                    <i class="fa-solid fa-clipboard-list w-4 text-center text-emerald-600"></i> Booked Appointments
+                </a>
+                <a href="{% url 'vet_patient_history' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'vet_patient_history' %}active{% endif %}">
+                    <i class="fa-solid fa-notes-medical w-4 text-center text-emerald-600"></i> Patient Medical History
+                </a>
+                <a href="{% url 'vet_availability' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'vet_availability' %}active{% endif %}">
+                    <i class="fa-solid fa-clock w-4 text-center text-emerald-600"></i> Manage Availability
+                </a>
+                <a href="{% url 'vet_profile_settings' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'vet_profile_settings' %}active{% endif %}">
+                    <i class="fa-solid fa-user-gear w-4 text-center text-emerald-600"></i> Profile Settings
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Admin Panel -->
+            {% if user.is_authenticated and user.role == 'ADMIN' %}
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 menu-section-title">Main Menu</p>
+                <a href="{% url 'admin_dashboard' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge w-4 text-center text-emerald-600"></i> Admin Dashboard
+                </a>
+                <a href="{% url 'admin_appointments' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'admin_appointments' %}active{% endif %}">
+                    <i class="fa-solid fa-calendar-check w-4 text-center text-emerald-600"></i> All Appointments
+                </a>
+                <a href="{% url 'admin_payments' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'admin_payments' %}active{% endif %}">
+                    <i class="fa-solid fa-credit-card w-4 text-center text-emerald-600"></i> Payment Approvals
+                </a>
+                <a href="{% url 'admin_vet_management' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'admin_vet_management' %}active{% endif %}">
+                    <i class="fa-solid fa-user-doctor w-4 text-center text-emerald-600"></i> Vet Management
+                </a>
+                <a href="{% url 'admin_patient_management' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'admin_patient_management' %}active{% endif %}">
+                    <i class="fa-solid fa-users w-4 text-center text-emerald-600"></i> Patient Management
+                </a>
+                <a href="{% url 'admin_routine_control' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'admin_routine_control' %}active{% endif %}">
+                    <i class="fa-solid fa-list-check w-4 text-center text-emerald-600"></i> Routine Control
+                </a>
+                <a href="{% url 'admin_reports' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie w-4 text-center text-emerald-600"></i> Reports
+                </a>
+            </div>
+            {% endif %}
+        </nav>
+
+        <!-- Logout -->
+        {% if user.is_authenticated %}
+        <div class="p-4 border-t border-slate-100">
+            <form method="post" action="{% url 'logout' %}" class="w-full">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn w-full flex items-center justify-center gap-2 text-red-600 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </aside>
+
+    <!-- Header / Navbar -->
+    <header class="no-print-header bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="{% url 'home' %}" class="flex items-center gap-3">
+                <i class="fa-solid fa-dove text-2xl text-emerald-600"></i>
+                <span class="text-xl font-bold text-slate-900 tracking-tight">Vet<span class="text-emerald-600">Care</span></span>
+            </a>
+            <nav class="hidden md:flex items-center gap-4 font-medium text-xs text-slate-600">
+                <a href="{% url 'home' %}" class="text-emerald-600 font-bold">Home</a>
+                {% if user.is_authenticated %}
+                    {% if user.role == 'PATIENT' %}
+                        <a href="{% url 'patient_dashboard' %}" class="hover:text-emerald-600 transition">Dashboard</a>
+                        <a href="{% url 'booking_doctors' %}" class="hover:text-emerald-600 transition">Find Doctor & Book</a>
+                        <a href="{% url 'my_appointments' %}" class="hover:text-emerald-600 transition">My Appointments</a>
+                        <a href="{% url 'cancel_refund_list' %}" class="hover:text-emerald-600 transition">Cancel & Refund Slip</a>
+                        <a href="{% url 'chatbot' %}" class="hover:text-emerald-600 transition">Avian Health Chatbot</a>
+                        <a href="{% url 'manage_profile' %}" class="hover:text-emerald-600 transition">Manage Profile</a>
+                    {% elif user.role == 'DOCTOR' %}
+                        <a href="{% url 'vet_dashboard' %}" class="hover:text-emerald-600 transition">Doctor Dashboard</a>
+                        <a href="{% url 'vet_booked_appointments' %}" class="hover:text-emerald-600 transition">Booked Appointments</a>
+                        <a href="{% url 'vet_patient_history' %}" class="hover:text-emerald-600 transition">Patient Medical History</a>
+                        <a href="{% url 'vet_availability' %}" class="hover:text-emerald-600 transition">Manage Availability</a>
+                        <a href="{% url 'vet_profile_settings' %}" class="hover:text-emerald-600 transition">Profile Settings</a>
+                    {% elif user.role == 'ADMIN' %}
+                        <a href="{% url 'admin_dashboard' %}" class="hover:text-emerald-600 transition">Admin Dashboard</a>
+                        <a href="{% url 'admin_appointments' %}" class="hover:text-emerald-600 transition">Appointments</a>
+                        <a href="{% url 'admin_payments' %}" class="hover:text-emerald-600 transition">Payment Approvals</a>
+                        <a href="{% url 'admin_vet_management' %}" class="hover:text-emerald-600 transition">Vet Management</a>
+                        <a href="{% url 'admin_patient_management' %}" class="hover:text-emerald-600 transition">Patient Management</a>
+                        <a href="{% url 'admin_routine_control' %}" class="hover:text-emerald-600 transition">Routine Control</a>
+                        <a href="{% url 'admin_reports' %}" class="hover:text-emerald-600 transition">Reports</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'booking_doctors' %}" class="hover:text-emerald-600 transition">Find Doctor & Book</a>
+                    <a href="{% url 'chatbot' %}" class="hover:text-emerald-600 transition">Avian Health Chatbot</a>
+                {% endif %}
+            </nav>
+                <div class="flex items-center gap-3">
+                {% if user.is_authenticated %}
+                    <button onclick="toggleSidebar()" class="md:hidden p-2 -mr-2 text-slate-600 hover:text-slate-900 transition">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <span class="text-xs font-medium text-slate-600 hidden sm:block">
+                        {{ user.get_full_name|default:user.username }}
+                    </span>
+                    <form method="post" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl transition shadow-sm">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="text-xs font-semibold text-slate-600 hover:text-emerald-600 transition px-3 py-2">Login</a>
+                    <a href="{% url 'register' %}" class="text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl transition shadow-sm">Register</a>
+                {% endif %}
+                </div>
+        </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-grow">
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 pt-4 space-y-2">
+            {% for message in messages %}
+            <div class="rounded-xl p-3 text-xs font-medium">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="no-print-footer bg-slate-900 text-slate-400 text-xs border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-dove text-2xl text-emerald-500"></i>
+                    <span class="text-xl font-bold text-white tracking-tight">Vet<span class="text-emerald-500">Care</span></span>
+                </div>
+                <p class="text-slate-400 leading-relaxed">Advanced veterinary management system providing seamless doctor appointments, digital records, and AI-powered health support for all pets.</p>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-sm font-semibold text-white">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'home' %}" class="hover:text-emerald-400 transition">Home Page</a></li>
+                    {% if user.is_authenticated and user.role == 'PATIENT' %}
+                        <li><a href="{% url 'patient_dashboard' %}" class="hover:text-emerald-400 transition">Patient Portal</a></li>
+                        <li><a href="{% url 'booking_doctors' %}" class="hover:text-emerald-400 transition">Book Specialist Vets</a></li>
+                    {% endif %}
+                    {% if user.is_authenticated and user.role == 'DOCTOR' %}
+                        <li><a href="{% url 'vet_dashboard' %}" class="hover:text-emerald-400 transition">Vet Panel</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'chatbot' %}" class="hover:text-emerald-400 transition">Pet Health Assistant</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-sm font-semibold text-white">System Portals</h4>
+                <ul class="space-y-2">
+                    {% if user.is_authenticated and user.role == 'DOCTOR' %}
+                        <li><a href="{% url 'vet_dashboard' %}" class="hover:text-emerald-400 transition">Veterinary Doctor Panel</a></li>
+                    {% endif %}
+                    {% if user.is_authenticated and user.role == 'ADMIN' %}
+                        <li><a href="/admin/" class="hover:text-emerald-400 transition">System Admin Dashboard</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'login' %}" class="hover:text-emerald-400 transition">Account Login</a></li>
+                    <li><a href="{% url 'register' %}" class="hover:text-emerald-400 transition">New Registration</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-sm font-semibold text-white">Support & Refund</h4>
+                <p class="text-slate-400 leading-relaxed">Have questions or need assistance? Reach out to our 24/7 helpdesk.</p>
+                <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 space-y-1">
+                    <span class="text-emerald-400 font-bold block">90% Cancellation Refund</span>
+                    <p class="text-[11px] text-slate-400">System charge: 10% on cancelled bookings.</p>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-slate-800 bg-slate-950 py-4">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2 text-slate-500 text-[11px]">
+                <p>&copy; 2026 VetCare System. All rights reserved.</p>
+                <div class="flex gap-4">
+                    <a href="{% url 'privacy_policy' %}" class="hover:text-slate-400 transition">Privacy Policy</a>
+                    <a href="{% url 'terms_of_service' %}" class="hover:text-slate-400 transition">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

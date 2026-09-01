@@ -1,0 +1,35 @@
+# Environment & secrets
+env/
+.env
+.env.*
+password.txt
+*.pem
+*.key
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual env
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+
+# Media uploads (if any)
+media/

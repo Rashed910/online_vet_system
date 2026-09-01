@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In - VetCare{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm max-w-sm w-full space-y-6 mx-auto mt-12">
+    <div class="text-center space-y-2">
+        <div class="inline-flex items-center justify-center w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full text-xl">
+            <i class="fa-solid fa-dove"></i>
+        </div>
+        <h1 class="text-xl font-bold text-slate-900">Sign In to VetCare</h1>
+        <p class="text-slate-500 text-xs">Secure authentication for all roles</p>
+    </div>
+    <form method="post" action="{% url 'login' %}" class="space-y-4 text-xs">
+        {% csrf_token %}
+        <div>
+            <label class="block text-slate-600 mb-1">Username / Email</label>
+            <input type="text" name="username" placeholder="user@vetcare.com" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500" required>
+        </div>
+        <div>
+            <label class="block text-slate-600 mb-1">Password</label>
+            <input type="password" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500" required>
+        </div>
+        <button type="submit" class="block text-center w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl transition shadow-sm">
+            Sign In
+        </button>
+        <p class="text-center text-slate-500 text-xs mt-2">New user? <a href="{% url 'register' %}" class="text-emerald-600 font-bold hover:underline">Create an account</a></p>
+    </form>
+</div>
+{% endblock %}

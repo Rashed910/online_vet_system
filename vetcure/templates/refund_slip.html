@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Refund Slip - VetCare{% endblock %}
+
+{% block content %}
+<div id="printable-area" class="max-w-lg w-full mx-auto px-4 py-8">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Header -->
+        <div class="bg-emerald-600 text-white p-6 text-center">
+            <div class="inline-flex items-center justify-center w-14 h-14 bg-white/20 rounded-full mb-3">
+                <i class="fa-solid fa-file-invoice-dollar text-2xl"></i>
+            </div>
+            <h1 class="text-xl font-bold">Refund Slip</h1>
+            <p class="text-emerald-100 text-xs mt-1">Appointment Cancellation Refund</p>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="px-6 pt-4 text-center">
+            <span class="inline-block bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full text-xs font-bold">
+                <i class="fa-solid fa-check-circle mr-1"></i> Refund Processed
+            </span>
+        </div>
+
+        <!-- Details -->
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <div>
+                    <span class="text-slate-400 block">Refund ID</span>
+                    <span class="font-bold text-slate-800">#REF-{{ refund.id|stringformat:"04d" }}</span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block">Date Processed</span>
+                    <span class="font-bold text-slate-800">{{ refund.processed_at|date:"M d, Y h:i A" }}</span>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4">
+                <h3 class="font-bold text-slate-900 text-sm mb-3">Appointment Details</h3>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Doctor</span>
+                        <span class="font-medium text-slate-800">Dr. {{ appointment.doctor.user.get_full_name }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Specialty</span>
+                        <span class="font-medium text-slate-800">{{ appointment.doctor.specialty }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Scheduled Date</span>
+                        <span class="font-medium text-slate-800">{{ appointment.date|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Scheduled Time</span>
+                        <span class="font-medium text-slate-800">{{ appointment.time|time:"h:i A" }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Pet Name</span>
+                        <span class="font-medium text-slate-800">{{ appointment.patient.pet_name|default:"N/A" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4">
+                <h3 class="font-bold text-slate-900 text-sm mb-3">Refund Breakdown</h3>
+                <div class="bg-slate-50 rounded-xl p-4 space-y-2 text-xs border border-slate-200">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Original Fee Paid</span>
+                        <span class="font-medium text-slate-800">BDT {{ refund.original_amount }}</span>
+                    </div>
+                    <div class="flex justify-between text-red-600">
+                        <span>Deduction Fee (10%)</span>
+                        <span class="font-medium">- BDT {{ deduction }}</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-slate-900 text-sm border-t border-slate-200 pt-2">
+                        <span>90% Refund Amount</span>
+                        <span class="text-emerald-600">BDT {{ refund.refund_amount }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4">
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <i class="fa-solid fa-info-circle text-blue-500"></i>
+                    <span>Refund will be credited to your original payment method ({{ appointment.payment.payment_method }}) within 3-5 business days.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="px-6 pb-6 flex gap-3 no-print">
+            <a href="{% url 'patient_dashboard' %}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-semibold text-center transition">
+                Back to Dashboard
+            </a>
+            <button onclick="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-semibold transition">
+                <i class="fa-solid fa-print mr-1"></i> Print Slip
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
