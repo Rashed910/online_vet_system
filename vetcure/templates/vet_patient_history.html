@@ -12,9 +12,7 @@
                     <tr>
                         <th class="p-3">SL#</th>
                         <th class="p-3">Date</th>
-                        <th class="p-3">Pet Name</th>
                         <th class="p-3">Owner Name</th>
-                        <th class="p-3">Species</th>
                         <th class="p-3">Diagnosis</th>
                         <th class="p-3">Medical Suggestion</th>
                     </tr>
@@ -24,9 +22,7 @@
                     <tr>
                         <td class="p-3 font-semibold text-slate-800">{{ forloop.counter }}</td>
                         <td class="p-3">{{ appointment.date|date:"M d, Y" }}</td>
-                        <td class="p-3 font-bold text-emerald-600">{{ appointment.patient.pet_name }}</td>
                         <td class="p-3">{{ appointment.patient.user.get_full_name }}</td>
-                        <td class="p-3">{{ appointment.patient.species }}</td>
                         <td class="p-3 text-slate-600">{{ appointment.patient.medical_history|default:"No records"|truncatewords:10 }}</td>
                         <td class="p-3">
                             {% with last_history=appointment.patient.medical_histories.first %}
@@ -40,7 +36,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="p-6 text-center text-slate-500">No patient records found.</td>
+                        <td colspan="5" class="p-6 text-center text-slate-500">No patient records found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>

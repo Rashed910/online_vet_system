@@ -9,5 +9,4 @@ urlpatterns = [
     path('', include('booking.urls')),
     path('', include('chatbot.urls')),
     path('', include('vet.urls')),
-    path('', include('adminpanel.urls')),
 ]

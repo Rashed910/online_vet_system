@@ -11,11 +11,11 @@
             <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">
-                        {{ data.appointment.patient.pet_name|first|upper }}
+                        {{ data.appointment.patient.user.get_full_name|first|upper }}
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-900 text-sm">{{ data.appointment.patient.pet_name }} <span class="text-slate-400 font-normal">({{ data.appointment.patient.species }})</span></h3>
-                        <p class="text-xs text-slate-500">Owner: {{ data.appointment.patient.user.get_full_name }}</p>
+                        <h3 class="font-bold text-slate-900 text-sm">{{ data.appointment.patient.user.get_full_name }}</h3>
+                        <p class="text-xs text-slate-500">Phone: {{ data.appointment.patient.user.phone|default:"-" }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">

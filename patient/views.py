@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from patient.models import Patient
 from django.contrib.auth import get_user_model
+from booking.views import validate_phone_by_country
 User = get_user_model()
 
 
@@ -18,7 +19,7 @@ def dashboard(request):
         appointments = []
 
     has_pending = any(
-        apt.payment.status == 'PENDING' and apt.status == 'PENDING'
+        getattr(apt, 'payment', None) and apt.payment.status == 'PENDING' and apt.status == 'PENDING'
         for apt in appointments
     )
 
@@ -90,32 +91,16 @@ def manage_profile(request):
     except Patient.DoesNotExist:
         patient = Patient.objects.create(user=request.user)
 
+    phone_display = ''
+    if request.user.phone:
+        cc = request.user.country_code or '+880'
+        phone_display = request.user.phone[len(cc):] if request.user.phone.startswith(cc) else request.user.phone
+
     context = {
         'patient': patient,
+        'phone_display': phone_display,
     }
     return render(request, 'manage_profile.html', context)
-
-
-@login_required
-def update_pet_profile(request):
-    if request.user.role != 'PATIENT':
-        return render(request, '403.html', status=403)
-
-    if request.method == 'POST':
-        try:
-            patient = request.user.patient_profile
-        except Patient.DoesNotExist:
-            patient = Patient.objects.create(user=request.user)
-
-        patient.pet_name = request.POST.get('pet_name', '').strip()
-        patient.species = request.POST.get('species', '').strip()
-        patient.age = request.POST.get('age') or None
-        patient.weight = request.POST.get('weight') or None
-        patient.save()
-
-        messages.success(request, 'Pet profile updated successfully.')
-
-    return redirect('manage_profile')
 
 
 @login_required
@@ -140,14 +125,50 @@ def update_patient_profile(request):
             messages.error(request, 'This email is already in use.')
             return redirect('manage_profile')
 
+        if phone:
+            phone_digits = ''.join(c for c in phone if c.isdigit())
+            country_digits = ''.join(c for c in country_code if c.isdigit())
+            if phone_digits.startswith('0'):
+                phone_digits = phone_digits[1:]
+            valid, err = validate_phone_by_country(phone_digits, country_code)
+            if not valid:
+                messages.error(request, err)
+                return redirect('manage_profile')
+            full_phone = '+' + country_digits + phone_digits
+            if User.objects.filter(phone=full_phone).exclude(id=user.id).exists():
+                messages.error(request, 'This phone number is already used by another account.')
+                return redirect('manage_profile')
+            phone = full_phone
+        else:
+            phone = ''
+
+        orig_first = user.first_name
+        orig_last = user.last_name
+        orig_email = user.email
+        orig_country = user.country_code
+        orig_phone = user.phone
+        orig_address = user.address
+
         user.first_name = first_name
         user.last_name = last_name
         user.email = email
         user.country_code = country_code
         user.phone = phone
         user.address = address
+
+        changed = any([
+            user.first_name != orig_first,
+            user.last_name != orig_last,
+            user.email != orig_email,
+            user.country_code != orig_country,
+            (user.phone or '') != (orig_phone or ''),
+            user.address != orig_address,
+        ])
         user.save()
 
-        messages.success(request, 'Your profile has been updated.')
+        if changed:
+            messages.success(request, 'Your profile has been updated.')
+        else:
+            messages.info(request, 'No changes were made to your profile.')
 
     return redirect('manage_profile')

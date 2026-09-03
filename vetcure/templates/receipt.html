@@ -66,10 +66,6 @@
                         <span class="font-medium text-slate-800">{{ appointment.patient.user.get_full_name }}</span>
                     </div>
                     <div class="flex justify-between py-1.5 border-b border-slate-50">
-                        <span class="text-slate-500">Pet Name</span>
-                        <span class="font-medium text-slate-800">{{ appointment.patient.pet_name|default:"N/A" }}</span>
-                    </div>
-                    <div class="flex justify-between py-1.5 border-b border-slate-50">
                         <span class="text-slate-500">Doctor</span>
                         <span class="font-medium text-slate-800">Dr. {{ appointment.doctor.user.get_full_name }}</span>
                     </div>

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib import messages
 
 User = get_user_model()
@@ -32,6 +32,11 @@ def login_view(request):
             messages.error(request, 'Invalid username/email or password.')
 
     return render(request, 'login.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 
 def register_view(request):

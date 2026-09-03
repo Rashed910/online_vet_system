@@ -138,8 +138,42 @@
 
         <div>
             <label class="block text-slate-700 mb-1.5 text-xs font-semibold">Phone Number (used for payment) *</label>
-            <input type="tel" name="phone_number" id="phone-input" required minlength="10" maxlength="15" pattern="[0-9+\-\s]+" placeholder="e.g., 01712345678" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-sm">
-            <p class="text-[10px] text-slate-400 mt-1">Enter the bKash/Nagad phone number you sent the payment from</p>
+            <div class="flex gap-2">
+                <select name="country_code" id="country-code" class="w-28 border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-emerald-500 text-xs bg-white font-mono">
+                    <option value="+880" {% if user.country_code == '+880' or not user.country_code %}selected{% endif %}>🇧🇩 +880</option>
+                    <option value="+1" {% if user.country_code == '+1' %}selected{% endif %}>🇺🇸 +1</option>
+                    <option value="+44" {% if user.country_code == '+44' %}selected{% endif %}>🇬🇧 +44</option>
+                    <option value="+91" {% if user.country_code == '+91' %}selected{% endif %}>🇮🇳 +91</option>
+                    <option value="+86" {% if user.country_code == '+86' %}selected{% endif %}>🇨🇳 +86</option>
+                    <option value="+81" {% if user.country_code == '+81' %}selected{% endif %}>🇯🇵 +81</option>
+                    <option value="+82" {% if user.country_code == '+82' %}selected{% endif %}>🇰🇷 +82</option>
+                    <option value="+966" {% if user.country_code == '+966' %}selected{% endif %}>🇸🇦 +966</option>
+                    <option value="+971" {% if user.country_code == '+971' %}selected{% endif %}>🇦🇪 +971</option>
+                    <option value="+92" {% if user.country_code == '+92' %}selected{% endif %}>🇵🇰 +92</option>
+                    <option value="+60" {% if user.country_code == '+60' %}selected{% endif %}>🇲🇾 +60</option>
+                    <option value="+65" {% if user.country_code == '+65' %}selected{% endif %}>🇸🇬 +65</option>
+                    <option value="+62" {% if user.country_code == '+62' %}selected{% endif %}>🇮🇩 +62</option>
+                    <option value="+63" {% if user.country_code == '+63' %}selected{% endif %}>🇵🇭 +63</option>
+                    <option value="+66" {% if user.country_code == '+66' %}selected{% endif %}>🇹🇭 +66</option>
+                    <option value="+84" {% if user.country_code == '+84' %}selected{% endif %}>🇻🇳 +84</option>
+                    <option value="+20" {% if user.country_code == '+20' %}selected{% endif %}>🇪🇬 +20</option>
+                    <option value="+27" {% if user.country_code == '+27' %}selected{% endif %}>🇿🇦 +27</option>
+                    <option value="+234" {% if user.country_code == '+234' %}selected{% endif %}>🇳🇬 +234</option>
+                    <option value="+254" {% if user.country_code == '+254' %}selected{% endif %}>🇰🇪 +254</option>
+                    <option value="+61" {% if user.country_code == '+61' %}selected{% endif %}>🇦🇺 +61</option>
+                    <option value="+64" {% if user.country_code == '+64' %}selected{% endif %}>🇳🇿 +64</option>
+                    <option value="+49" {% if user.country_code == '+49' %}selected{% endif %}>🇩🇪 +49</option>
+                    <option value="+33" {% if user.country_code == '+33' %}selected{% endif %}>🇫🇷 +33</option>
+                    <option value="+39" {% if user.country_code == '+39' %}selected{% endif %}>🇮🇹 +39</option>
+                    <option value="+34" {% if user.country_code == '+34' %}selected{% endif %}>🇪🇸 +34</option>
+                    <option value="+7" {% if user.country_code == '+7' %}selected{% endif %}>🇷🇺 +7</option>
+                    <option value="+55" {% if user.country_code == '+55' %}selected{% endif %}>🇧🇷 +55</option>
+                    <option value="+52" {% if user.country_code == '+52' %}selected{% endif %}>🇲🇽 +52</option>
+                    <option value="+90" {% if user.country_code == '+90' %}selected{% endif %}>🇹🇷 +90</option>
+                </select>
+                <input type="tel" name="phone_number" id="phone-input" required minlength="7" maxlength="15" pattern="[0-9]+" inputmode="numeric" placeholder="01712345678" class="flex-1 border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-sm">
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Enter the bKash/Nagad phone number you sent the payment from <span id="phone-counter" class="text-emerald-600 font-semibold"></span></p>
         </div>
 
         <div>
@@ -242,12 +276,47 @@ function selectTime(btn) {
     updateSubmit();
 }
 
+var COUNTRY_PHONE_RULES = {
+    '+880': {min: 10, max: 10},
+    '+1': {min: 10, max: 10},
+    '+44': {min: 10, max: 10},
+    '+91': {min: 10, max: 10},
+    '+86': {min: 11, max: 11},
+    '+81': {min: 10, max: 10},
+    '+82': {min: 10, max: 10},
+    '+966': {min: 9, max: 9},
+    '+971': {min: 9, max: 9},
+    '+92': {min: 10, max: 10},
+    '+60': {min: 9, max: 10},
+    '+65': {min: 8, max: 8},
+    '+62': {min: 9, max: 12},
+    '+63': {min: 10, max: 10},
+    '+66': {min: 9, max: 10},
+    '+84': {min: 9, max: 10},
+    '+20': {min: 10, max: 10},
+    '+27': {min: 9, max: 9},
+    '+234': {min: 10, max: 11},
+    '+254': {min: 9, max: 10},
+    '+61': {min: 9, max: 9},
+    '+64': {min: 9, max: 9},
+    '+49': {min: 10, max: 12},
+    '+33': {min: 9, max: 9},
+    '+39': {min: 9, max: 10},
+    '+34': {min: 9, max: 9},
+    '+7': {min: 10, max: 10},
+    '+55': {min: 10, max: 11},
+    '+52': {min: 10, max: 10},
+    '+90': {min: 10, max: 10},
+};
+
 function updateSubmit() {
     var btn = document.getElementById('submit-btn');
     var hasPayment = document.querySelector('input[name="payment_method"]:checked');
     var phoneInput = document.getElementById('phone-input');
     var phoneDigits = phoneInput ? phoneInput.value.replace(/\D/g, '') : '';
-    var hasPhone = phoneDigits.length >= 10;
+    var countryCode = document.getElementById('country-code') ? document.getElementById('country-code').value : '+880';
+    var rules = COUNTRY_PHONE_RULES[countryCode] || {min: 10, max: 15};
+    var hasPhone = phoneDigits.length >= rules.min && phoneDigits.length <= rules.max;
     var hasTx = document.getElementById('tx-input').value.length >= 6;
     var hasTime = selectedTime.length > 0;
 
@@ -261,10 +330,39 @@ function updateSubmit() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('input[name="payment_method"]').forEach(function(r) {
-        r.addEventListener('change', updateSubmit);
+    function updatePhoneRules() {
+        var countryCode = document.getElementById('country-code').value;
+        var rules = COUNTRY_PHONE_RULES[countryCode] || {min: 10, max: 15};
+        var phoneInput = document.getElementById('phone-input');
+        phoneInput.maxLength = rules.max;
+        phoneInput.placeholder = 'Enter ' + rules.max + ' digit number';
+        updateSubmit();
+    }
+
+    function updatePhoneCounter() {
+        var phoneInput = document.getElementById('phone-input');
+        var counter = document.getElementById('phone-counter');
+        var countryCode = document.getElementById('country-code').value;
+        var rules = COUNTRY_PHONE_RULES[countryCode] || {min: 10, max: 15};
+        var digits = phoneInput.value.replace(/\D/g, '');
+        if (digits.length > 0) {
+            counter.textContent = digits.length + ' / ' + rules.max + ' digits';
+        } else {
+            counter.textContent = '';
+        }
+    }
+
+    document.getElementById('country-code').addEventListener('change', function() {
+        updatePhoneRules();
+        updatePhoneCounter();
     });
-    document.getElementById('phone-input').addEventListener('input', updateSubmit);
+    document.getElementById('phone-input').addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+        updateSubmit();
+        updatePhoneCounter();
+    });
+    updatePhoneRules();
+    updatePhoneCounter();
     document.getElementById('tx-input').addEventListener('input', updateSubmit);
 
     document.querySelectorAll('.time-slot-pill').forEach(function(btn) {
@@ -276,12 +374,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('booking-form').addEventListener('submit', function(e) {
         var tx = document.getElementById('tx-input').value;
         var phoneDigits = document.getElementById('phone-input').value.replace(/\D/g, '');
+        var countryCode = document.getElementById('country-code').value;
+        var rules = COUNTRY_PHONE_RULES[countryCode] || {min: 10, max: 15};
         if (tx.length < 6) {
             e.preventDefault();
             alert('Please enter a valid transaction ID (minimum 6 characters).');
-        } else if (phoneDigits.length < 10) {
+        } else if (phoneDigits.length < rules.min || phoneDigits.length > rules.max) {
             e.preventDefault();
-            alert('Please enter a valid phone number (at least 10 digits).');
+            alert('Phone number must be ' + rules.min + ' digits for selected country (entered: ' + phoneDigits.length + ' digits).');
         }
     });
 });

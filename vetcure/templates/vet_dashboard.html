@@ -20,29 +20,29 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-6 rounded-2xl border border-emerald-200 shadow-sm space-y-2">
             <div class="flex items-center justify-between">
-                <span class="text-slate-400 text-xs font-medium">Patients Seen Today</span>
-                <i class="fa-solid fa-user-check text-emerald-500"></i>
+                <span class="text-emerald-700 text-sm font-bold">Patients Seen Today</span>
+                <i class="fa-solid fa-user-check text-emerald-600 text-lg"></i>
             </div>
-            <div class="text-3xl font-bold text-emerald-600">{{ patients_seen_today }}</div>
-            <p class="text-[10px] text-slate-400">Completed appointments today</p>
+            <div class="text-4xl font-extrabold text-emerald-700">{{ patients_seen_today }}</div>
+            <p class="text-xs text-emerald-600 font-medium">Completed appointments today</p>
         </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 rounded-2xl border border-amber-200 shadow-sm space-y-2">
             <div class="flex items-center justify-between">
-                <span class="text-slate-400 text-xs font-medium">Patients Remaining</span>
-                <i class="fa-solid fa-users text-amber-500"></i>
+                <span class="text-amber-700 text-sm font-bold">Patients Remaining</span>
+                <i class="fa-solid fa-users text-amber-600 text-lg"></i>
             </div>
-            <div class="text-3xl font-bold text-amber-500">{{ patients_remaining }}</div>
-            <p class="text-[10px] text-slate-400">Pending today ({{ total_today }} total)</p>
+            <div class="text-4xl font-extrabold text-amber-700">{{ patients_remaining }}</div>
+            <p class="text-xs text-amber-600 font-medium">Pending today ({{ total_today }} total)</p>
         </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100/50 p-6 rounded-2xl border border-slate-300 shadow-sm space-y-2">
             <div class="flex items-center justify-between">
-                <span class="text-slate-400 text-xs font-medium">Working Time Left</span>
-                <i class="fa-solid fa-hourglass-half text-slate-500"></i>
+                <span class="text-slate-700 text-sm font-bold">Working Time Left</span>
+                <i class="fa-solid fa-hourglass-half text-slate-600 text-lg"></i>
             </div>
-            <div class="text-3xl font-bold text-slate-800">{{ working_time }}</div>
-            <p class="text-[10px] text-slate-400">Based on today's availability</p>
+            <div class="text-4xl font-extrabold text-slate-800">{{ working_time }}</div>
+            <p class="text-xs text-slate-600 font-medium">Time left until working hours end</p>
         </div>
     </div>
 
@@ -59,11 +59,11 @@
                 <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
-                            {{ appointment.patient.pet_name|first|upper }}
+                            {{ appointment.patient.user.get_full_name|first|upper }}
                         </div>
                         <div>
-                            <p class="font-bold text-slate-800 text-xs">{{ appointment.patient.pet_name }} <span class="text-slate-400 font-normal">({{ appointment.patient.species }})</span></p>
-                            <p class="text-[10px] text-slate-500">Owner: {{ appointment.patient.user.get_full_name }}</p>
+                            <p class="font-bold text-slate-800 text-xs">{{ appointment.patient.user.get_full_name }}</p>
+                            <p class="text-[10px] text-slate-500">Phone: {{ appointment.patient.user.phone|default:"-" }}</p>
                         </div>
                     </div>
                     <div class="text-right">
@@ -101,7 +101,7 @@
                         <p class="font-bold text-slate-800 text-xs">{{ history.diagnosis|truncatewords:8 }}</p>
                         <span class="text-[9px] text-slate-400">{{ history.date|date:"M d" }}</span>
                     </div>
-                    <p class="text-[10px] text-slate-500">Pet: <span class="font-semibold text-emerald-600">{{ history.patient.pet_name }}</span></p>
+                    <p class="text-[10px] text-slate-500">Owner: <span class="font-semibold text-emerald-600">{{ history.patient.user.get_full_name }}</span></p>
                     {% if history.notes %}<p class="text-[10px] text-slate-500 mt-1 line-clamp-2">{{ history.notes|truncatewords:12 }}</p>{% endif %}
                 </a>
                 {% empty %}

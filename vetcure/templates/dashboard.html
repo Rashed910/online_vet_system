@@ -6,7 +6,7 @@
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-emerald-900 text-white p-6 rounded-2xl shadow-sm mt-4">
     <div>
         <h1 class="text-2xl font-bold">Welcome, {{ user.get_full_name|default:user.username }}!</h1>
-        <p class="text-emerald-200 text-sm mt-1">Manage your profile, pet profile, and appointments.</p>
+        <p class="text-emerald-200 text-sm mt-1">Manage your profile and appointments.</p>
     </div>
     <a href="{% url 'booking_doctors' %}" class="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition">
         <i class="fa-solid fa-plus"></i> Book New Appointment
@@ -44,33 +44,6 @@
             </div>
         </a>
 
-        <!-- Pet Profile Card (Compact) -->
-        <a href="{% url 'manage_profile' %}" class="block bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-                <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-feather text-emerald-600"></i> Pet Profile
-                </h2>
-                <span class="text-[10px] text-emerald-600 font-semibold">Edit <i class="fa-solid fa-arrow-right text-[8px]"></i></span>
-            </div>
-            <div class="space-y-2 text-xs">
-                <div class="flex justify-between">
-                    <span class="text-slate-400">Pet Name</span>
-                    <span class="font-bold text-emerald-600">{{ patient.pet_name|default:"Not set" }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-400">Species</span>
-                    <span class="font-medium text-slate-800">{{ patient.species|default:"Not set" }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-400">Age</span>
-                    <span class="font-medium text-slate-800">{{ patient.age|default:"-" }} {% if patient.age %}yrs{% endif %}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-400">Weight</span>
-                    <span class="font-medium text-slate-800">{{ patient.weight|default:"-" }} {% if patient.weight %}kg{% endif %}</span>
-                </div>
-            </div>
-        </a>
     </div>
 
     <!-- Right Column: Appointments -->
@@ -121,14 +94,18 @@
                             <td class="p-3 font-semibold text-slate-800">Dr. {{ appointment.doctor.user.get_full_name }}</td>
                             <td class="p-3">{{ appointment.date|date:"M d, Y" }} | {{ appointment.time|time:"h:i A" }}</td>
                             <td class="p-3">
-                                {% if appointment.payment.status == "PAID" %}
-                                <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Paid</span>
-                                {% elif appointment.payment.status == "PENDING" %}
-                                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
-                                {% elif appointment.payment.status == "REFUNDED" %}
-                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Refunded</span>
+                                {% if appointment.payment %}
+                                    {% if appointment.payment.status == "PAID" %}
+                                    <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Paid</span>
+                                    {% elif appointment.payment.status == "PENDING" %}
+                                    <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
+                                    {% elif appointment.payment.status == "REFUNDED" %}
+                                    <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Refunded</span>
+                                    {% else %}
+                                    <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">{{ appointment.payment.status }}</span>
+                                    {% endif %}
                                 {% else %}
-                                <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">{{ appointment.payment.status }}</span>
+                                <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">No Payment</span>
                                 {% endif %}
                             </td>
                             <td class="p-3">
@@ -153,7 +130,8 @@
                                             <i class="fa-solid fa-file-invoice-dollar"></i> Refund
                                         </a>
                                         {% endif %}
-                                    {% elif appointment.payment.status == "PAID" %}
+                                    {% elif appointment.payment %}
+                                    {% if appointment.payment.status == "PAID" %}
                                     <button onclick="openCancelModal({{ appointment.id }}, {{ appointment.fee }}, 'PAID')" class="inline-flex items-center gap-1 text-red-600 font-medium hover:underline" title="Cancel Appointment (refund eligible)">
                                         <i class="fa-solid fa-ban"></i> Cancel
                                     </button>
@@ -164,6 +142,7 @@
                                             <i class="fa-solid fa-ban"></i> Cancel
                                         </button>
                                     </form>
+                                    {% endif %}
                                     {% endif %}
                                 </div>
                             </td>

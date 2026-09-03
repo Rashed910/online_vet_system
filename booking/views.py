@@ -48,7 +48,8 @@ def doctor_detail(request, doctor_id):
 
     doctor = get_object_or_404(Doctor, id=doctor_id, is_active=True)
 
-    today = timezone.now().date()
+    now = timezone.localtime(timezone.now())
+    today = now.date()
     selected_date_str = request.GET.get('date', today.strftime('%Y-%m-%d'))
     try:
         selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
@@ -56,7 +57,6 @@ def doctor_detail(request, doctor_id):
         selected_date = today
 
     weekday = selected_date.weekday()
-    now = timezone.now()
     is_today = (selected_date == today)
     current_time = now.time()
 
@@ -122,7 +122,7 @@ def doctor_slots(request, doctor_id):
         return JsonResponse({'error': 'Invalid date'}, status=400)
 
     weekday = date_obj.weekday()
-    now = timezone.now()
+    now = timezone.localtime(timezone.now())
     is_today = (date_obj == now.date())
     current_time = now.time()
 
@@ -180,6 +180,49 @@ def booked_slots(request):
     return JsonResponse({'booked_slots': booked_slots})
 
 
+COUNTRY_PHONE_RULES = {
+    '+880': {'name': 'Bangladesh', 'min': 10, 'max': 10},
+    '+1':  {'name': 'USA/Canada', 'min': 10, 'max': 10},
+    '+44': {'name': 'UK', 'min': 10, 'max': 10},
+    '+91': {'name': 'India', 'min': 10, 'max': 10},
+    '+86': {'name': 'China', 'min': 11, 'max': 11},
+    '+81': {'name': 'Japan', 'min': 10, 'max': 10},
+    '+82': {'name': 'South Korea', 'min': 10, 'max': 10},
+    '+966': {'name': 'Saudi Arabia', 'min': 9, 'max': 9},
+    '+971': {'name': 'UAE', 'min': 9, 'max': 9},
+    '+92':  {'name': 'Pakistan', 'min': 10, 'max': 10},
+    '+60':  {'name': 'Malaysia', 'min': 9, 'max': 10},
+    '+65':  {'name': 'Singapore', 'min': 8, 'max': 8},
+    '+62':  {'name': 'Indonesia', 'min': 9, 'max': 12},
+    '+63':  {'name': 'Philippines', 'min': 10, 'max': 10},
+    '+66':  {'name': 'Thailand', 'min': 9, 'max': 10},
+    '+84':  {'name': 'Vietnam', 'min': 9, 'max': 10},
+    '+20':  {'name': 'Egypt', 'min': 10, 'max': 10},
+    '+27':  {'name': 'South Africa', 'min': 9, 'max': 9},
+    '+234': {'name': 'Nigeria', 'min': 10, 'max': 11},
+    '+254': {'name': 'Kenya', 'min': 9, 'max': 10},
+    '+61':  {'name': 'Australia', 'min': 9, 'max': 9},
+    '+64':  {'name': 'New Zealand', 'min': 9, 'max': 9},
+    '+49':  {'name': 'Germany', 'min': 10, 'max': 12},
+    '+33':  {'name': 'France', 'min': 9, 'max': 9},
+    '+39':  {'name': 'Italy', 'min': 9, 'max': 10},
+    '+34':  {'name': 'Spain', 'min': 9, 'max': 9},
+    '+7':   {'name': 'Russia', 'min': 10, 'max': 10},
+    '+55':  {'name': 'Brazil', 'min': 10, 'max': 11},
+    '+52':  {'name': 'Mexico', 'min': 10, 'max': 10},
+    '+90':  {'name': 'Turkey', 'min': 10, 'max': 10},
+}
+
+
+def validate_phone_by_country(phone_digits, country_code):
+    rules = COUNTRY_PHONE_RULES.get(country_code)
+    if not rules:
+        return True, None
+    if not (rules['min'] <= len(phone_digits) <= rules['max']):
+        return False, f"{rules['name']} phone numbers must be {rules['min']} digits (entered: {len(phone_digits)})."
+    return True, None
+
+
 @login_required
 def book_appointment(request):
     if request.method == 'POST':
@@ -190,26 +233,35 @@ def book_appointment(request):
         transaction_id = request.POST.get('transaction_id', '').strip()
         phone_number = request.POST.get('phone_number', '').strip()
 
+        def back_with_error(msg):
+            from django.contrib import messages as _m
+            _m.error(request, msg)
+            return redirect('doctor_detail', doctor_id=doctor_id) if doctor_id else redirect('booking_doctors')
+
         if payment_method not in ['BKASH', 'NAGAD']:
-            messages.error(request, 'Please select a valid payment method (bKash or Nagad).')
-            return redirect('booking_doctors')
+            return back_with_error('Please select a valid payment method (bKash or Nagad).')
 
         if not transaction_id:
-            messages.error(request, 'Please provide your bKash/Nagad transaction ID for payment verification.')
-            return redirect('booking_doctors')
+            return back_with_error('Please provide your bKash/Nagad transaction ID for payment verification.')
 
         if len(transaction_id) < 6:
-            messages.error(request, 'Transaction ID looks too short. Please enter the full transaction ID.')
-            return redirect('booking_doctors')
+            return back_with_error('Transaction ID looks too short. Please enter the full transaction ID.')
 
         if not phone_number:
-            messages.error(request, 'Please provide your phone number used for payment.')
-            return redirect('booking_doctors')
+            return back_with_error('Please provide your phone number used for payment.')
 
+        country_code = request.POST.get('country_code', '+880').strip()
         phone_digits = ''.join(c for c in phone_number if c.isdigit())
-        if len(phone_digits) < 10 or len(phone_digits) > 15:
-            messages.error(request, 'Please enter a valid phone number (10-15 digits).')
-            return redirect('booking_doctors')
+        country_digits = ''.join(c for c in country_code if c.isdigit())
+
+        if phone_digits.startswith('0'):
+            phone_digits = phone_digits[1:]
+
+        valid, err = validate_phone_by_country(phone_digits, country_code)
+        if not valid:
+            return back_with_error(err)
+
+        full_phone = '+' + country_digits + phone_digits
 
         try:
             doctor = Doctor.objects.get(id=doctor_id, is_active=True)
@@ -233,12 +285,10 @@ def book_appointment(request):
                 time_obj = None
             date_obj = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else None
         except ValueError:
-            messages.error(request, 'Invalid date or time format.')
-            return redirect('booking_doctors')
+            return back_with_error('Invalid date or time format.')
 
         if not date_obj or not time_obj:
-            messages.error(request, 'Please select a valid date and time.')
-            return redirect('booking_doctors')
+            return back_with_error('Please select a valid date and time.')
 
         existing = Appointment.objects.filter(
             doctor=doctor,
@@ -248,13 +298,12 @@ def book_appointment(request):
         ).exists()
 
         if existing:
-            messages.error(request, 'This time slot is already booked. Please choose another slot.')
-            return redirect('booking_doctors')
+            return back_with_error('This time slot is already booked. Please choose another slot.')
 
         from datetime import datetime as _dt
-        if date_obj == _dt.now().date() and time_obj <= _dt.now().time():
-            messages.error(request, 'Cannot book a slot in the past. Please choose a future time.')
-            return redirect('booking_doctors')
+        now_local = timezone.localtime(timezone.now())
+        if date_obj == now_local.date() and time_obj <= now_local.time():
+            return back_with_error('Cannot book a slot in the past. Please choose a future time.')
 
         appointment = Appointment.objects.create(
             patient=patient,
@@ -271,7 +320,7 @@ def book_appointment(request):
             status='PENDING',
             payment_method=payment_method,
             transaction_id=transaction_id,
-            phone_number=phone_number,
+            phone_number=full_phone,
         )
 
         messages.info(request, f'Appointment booked! Your payment (Transaction ID: {transaction_id}) is pending admin approval. You will be notified once approved.')

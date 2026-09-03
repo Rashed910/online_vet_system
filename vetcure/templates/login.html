@@ -2,6 +2,17 @@
 
 {% block title %}Sign In - VetCare{% endblock %}
 
+{% block extra_head %}
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+if (window.history && window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm max-w-sm w-full space-y-6 mx-auto mt-12">
     <div class="text-center space-y-2">

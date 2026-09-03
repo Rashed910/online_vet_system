@@ -59,7 +59,7 @@
                             <option value="+52" {% if user.country_code == '+52' %}selected{% endif %}>🇲🇽 +52</option>
                             <option value="+90" {% if user.country_code == '+90' %}selected{% endif %}>🇹🇷 +90</option>
                         </select>
-                        <input type="text" name="phone" value="{{ user.phone|default:'' }}" placeholder="1XXX-XXXXXX" class="flex-1 border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                        <input type="tel" name="phone" value="{{ phone_display|default:'' }}" pattern="[0-9]+" inputmode="numeric" placeholder="1XXX-XXXXXX" class="flex-1 border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
                     </div>
                 </div>
                 <div>
@@ -67,37 +67,6 @@
                     <textarea name="address" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">{{ user.address }}</textarea>
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-xl text-xs">Save Profile</button>
-            </form>
-        </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h2 class="font-bold text-slate-900 flex items-center gap-2">
-                <i class="fa-solid fa-feather text-emerald-600"></i> Pet Profile
-            </h2>
-            <form method="post" action="{% url 'update_pet_profile' %}" class="space-y-3">
-                {% csrf_token %}
-                <div>
-                    <label class="block text-slate-600 mb-1 text-xs">Pet Name</label>
-                    <input type="text" name="pet_name" value="{{ patient.pet_name|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
-                </div>
-                <div>
-                    <label class="block text-slate-600 mb-1 text-xs">Species</label>
-                    <input type="text" name="species" value="{{ patient.species|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
-                </div>
-                <div>
-                    <label class="block text-slate-600 mb-1 text-xs">Breed</label>
-                    <input type="text" name="breed" value="{{ patient.breed|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-slate-600 mb-1 text-xs">Age</label>
-                        <input type="number" name="age" value="{{ patient.age|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
-                    </div>
-                    <div>
-                        <label class="block text-slate-600 mb-1 text-xs">Weight</label>
-                        <input type="text" name="weight" value="{{ patient.weight|default:'' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-xl text-xs">Save Pet Profile</button>
             </form>
         </div>
     </div>

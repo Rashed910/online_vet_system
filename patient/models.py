@@ -12,7 +12,7 @@ class Patient(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.pet_name} ({self.species}) - {self.user.username}"
+        return f"{self.user.get_full_name() or self.user.username} - {self.user.email}"
 
 class MedicalHistory(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='medical_histories')
@@ -28,7 +28,7 @@ class MedicalHistory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.patient.pet_name} - {self.diagnosis[:50]} - {self.date}"
+        return f"{self.patient.user.get_full_name() or self.patient.user.username} - {self.diagnosis[:50]} - {self.date}"
 
 class Prescription(models.Model):
     appointment = models.ForeignKey('booking.Appointment', on_delete=models.CASCADE, related_name='prescriptions')

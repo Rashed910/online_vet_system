@@ -9,8 +9,8 @@
             <a href="{% url 'vet_booked_appointments' %}" class="text-xs text-emerald-600 font-semibold hover:underline mb-2 inline-block">
                 <i class="fa-solid fa-arrow-left"></i> Back to Queue
             </a>
-            <h1 class="text-2xl font-bold text-slate-900">Patient: {{ patient.pet_name }}</h1>
-            <p class="text-slate-500 text-xs">Owner: {{ patient.user.get_full_name }} | Species: {{ patient.species }}</p>
+            <h1 class="text-2xl font-bold text-slate-900">Patient: {{ patient.user.get_full_name }}</h1>
+            <p class="text-slate-500 text-xs">Phone: {{ patient.user.phone|default:"-" }} | Address: {{ patient.user.address|default:"-" }}</p>
         </div>
         <div class="flex items-center gap-2">
             {% if appointment.status == 'PENDING' %}
@@ -29,17 +29,9 @@
         <!-- Patient Info Card -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
-                <i class="fa-solid fa-feather text-emerald-600"></i> Pet Details
+                <i class="fa-solid fa-user text-emerald-600"></i> Owner Details
             </h2>
             <div class="space-y-2 text-xs">
-                <div><span class="text-slate-400 block">Pet Name</span><span class="font-semibold text-slate-800">{{ patient.pet_name }}</span></div>
-                <div><span class="text-slate-400 block">Species</span><span class="font-semibold text-slate-800">{{ patient.species }}</span></div>
-                <div><span class="text-slate-400 block">Breed</span><span class="font-semibold text-slate-800">{{ patient.breed|default:"-" }}</span></div>
-                <div><span class="text-slate-400 block">Age</span><span class="font-semibold text-slate-800">{{ patient.age|default:"-" }} years</span></div>
-                <div><span class="text-slate-400 block">Weight</span><span class="font-semibold text-slate-800">{{ patient.weight|default:"-" }} kg</span></div>
-            </div>
-            <div class="border-t border-slate-100 pt-3 space-y-2 text-xs">
-                <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-user text-emerald-600"></i> Owner</h3>
                 <div><span class="text-slate-400 block">Name</span><span class="font-semibold text-slate-800">{{ patient.user.get_full_name }}</span></div>
                 <div><span class="text-slate-400 block">Email</span><span class="font-semibold text-slate-800">{{ patient.user.email }}</span></div>
                 <div><span class="text-slate-400 block">Phone</span><span class="font-semibold text-slate-800">{{ patient.user.phone|default:"-" }}</span></div>

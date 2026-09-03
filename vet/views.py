@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from vet.models import Doctor, Availability
 from django.contrib.auth import get_user_model
+from booking.views import validate_phone_by_country
 User = get_user_model()
 
 
@@ -39,17 +40,18 @@ def vet_dashboard(request):
     if doctor:
         from vet.models import Availability
         today_weekday = today.weekday()
-        today_slots = Availability.objects.filter(doctor=doctor, day_of_week=today_weekday, is_available=True)
-        total_minutes = 0
+        today_slots = Availability.objects.filter(doctor=doctor, day_of_week=today_weekday, is_available=True).order_by('start_time')
+        now_local = timezone.localtime(timezone.now())
+        current_time = now_local.time()
+        remaining_minutes = 0
         for slot in today_slots:
-            delta = datetime.combine(today, slot.end_time) - datetime.combine(today, slot.start_time)
-            total_minutes += int(delta.total_seconds() / 60)
-        appointments_per_slot = 30
-        total_capacity_minutes = total_today * appointments_per_slot if total_today > 0 else 0
-        remaining_capacity = max(0, total_minutes - total_capacity_minutes)
-        hours = remaining_capacity // 60
-        minutes = remaining_capacity % 60
-        working_time = f"{hours}h {minutes}m" if total_minutes > 0 else "0h 0m"
+            if slot.start_time <= current_time < slot.end_time:
+                remaining = datetime.combine(today, slot.end_time) - datetime.combine(today, current_time)
+                remaining_minutes = int(remaining.total_seconds() / 60)
+                break
+        hours = remaining_minutes // 60
+        minutes = remaining_minutes % 60
+        working_time = f"{hours}h {minutes}m"
     else:
         working_time = "0h 0m"
 
@@ -348,26 +350,79 @@ def vet_profile_settings(request):
     except Exception:
         doctor = None
 
+    user = request.user
+
     if request.method == 'POST':
-        user = request.user
+        orig_first = user.first_name
+        orig_last = user.last_name
+        orig_email = user.email
+        orig_country = user.country_code
+        orig_phone = user.phone
+        orig_address = user.address
+
         user.first_name = request.POST.get('first_name', '').strip()
         user.last_name = request.POST.get('last_name', '').strip()
         user.email = request.POST.get('email', '').strip()
         user.country_code = request.POST.get('country_code', '+880').strip()
-        user.phone = request.POST.get('phone', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        user.address = request.POST.get('address', '').strip()
+
+        if phone:
+            phone_digits = ''.join(c for c in phone if c.isdigit())
+            country_digits = ''.join(c for c in user.country_code if c.isdigit())
+            if phone_digits.startswith('0'):
+                phone_digits = phone_digits[1:]
+            valid, err = validate_phone_by_country(phone_digits, user.country_code)
+            if not valid:
+                messages.error(request, err)
+                return redirect('vet_profile_settings')
+            full_phone = '+' + country_digits + phone_digits
+            if User.objects.filter(phone=full_phone).exclude(id=user.id).exists():
+                messages.error(request, 'This phone number is already used by another account.')
+                return redirect('vet_profile_settings')
+            user.phone = full_phone
+        else:
+            user.phone = ''
+
+        user_changed = any([
+            user.first_name != orig_first,
+            user.last_name != orig_last,
+            user.email != orig_email,
+            user.country_code != orig_country,
+            (user.phone or '') != (orig_phone or ''),
+            (user.address or '') != (orig_address or ''),
+        ])
         user.save()
 
+        doctor_changed = False
         if doctor:
+            orig_specialty = doctor.specialty
+            orig_fee = doctor.consultation_fee
+            orig_qual = doctor.qualification
+            orig_bio = doctor.bio
+
             doctor.specialty = request.POST.get('specialty', doctor.specialty)
             doctor.consultation_fee = request.POST.get('consultation_fee', doctor.consultation_fee)
             doctor.qualification = request.POST.get('qualification', doctor.qualification)
             doctor.bio = request.POST.get('bio', doctor.bio)
+
+            doctor_changed = any([
+                doctor.specialty != orig_specialty,
+                str(doctor.consultation_fee) != str(orig_fee),
+                doctor.qualification != orig_qual,
+                doctor.bio != orig_bio,
+            ])
             doctor.save()
 
-        messages.success(request, 'Profile updated successfully.')
+        if user_changed or doctor_changed:
+            messages.success(request, 'Profile updated successfully.')
+        else:
+            messages.info(request, 'No changes were made to your profile.')
         return redirect('vet_profile_settings')
 
+    cc = user.country_code or '+880'
     context = {
         'doctor': doctor,
+        'phone_display': (user.phone[len(cc):] if user.phone and user.phone.startswith(cc) else (user.phone or '')),
     }
     return render(request, 'vet_profile_settings.html', context)
