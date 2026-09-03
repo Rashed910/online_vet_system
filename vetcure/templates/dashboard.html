@@ -3,20 +3,6 @@
 {% block title %}Patient Dashboard - VetCare{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl w-full mx-auto px-4 mt-4 space-y-3">
-    {% for apt in appointments %}
-        {% if apt.payment.status == "PENDING" and apt.status == "PENDING" %}
-        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-lg p-4 flex items-start gap-3">
-            <i class="fa-solid fa-hourglass-half text-amber-600 text-lg mt-0.5 animate-pulse"></i>
-            <div class="flex-1">
-                <p class="text-sm font-bold text-amber-900">Awaiting Approval: Dr. {{ apt.doctor.user.get_full_name }} on {{ apt.date|date:"M d, Y" }} at {{ apt.time|time:"h:i A" }}</p>
-                <p class="text-xs text-amber-700 mt-1">Transaction ID <span class="font-mono font-bold">{{ apt.payment.transaction_id }}</span> is awaiting admin verification. Once approved, the status will automatically change to <strong>Confirmed</strong>. This page will refresh in <span id="countdown" class="font-bold">10</span>s.</p>
-            </div>
-        </div>
-        {% endif %}
-    {% endfor %}
-</div>
-
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-emerald-900 text-white p-6 rounded-2xl shadow-sm mt-4">
     <div>
         <h1 class="text-2xl font-bold">Welcome, {{ user.get_full_name|default:user.username }}!</h1>
@@ -151,7 +137,7 @@
                                 {% elif appointment.status == "PENDING" %}
                                 <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Awaiting Approval</span>
                                 {% elif appointment.status == "COMPLETED" %}
-                                <span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-medium">Completed</span>
+                                <span class="bg-blue-800 text-white px-2 py-0.5 rounded-full font-medium">Completed</span>
                                 {% else %}
                                 <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">Cancelled</span>
                                 {% endif %}
@@ -161,14 +147,23 @@
                                     <a href="{% url 'receipt' appointment.id %}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 font-medium hover:underline" title="View & Download Receipt">
                                         <i class="fa-solid fa-receipt"></i> View
                                     </a>
-                                    {% if appointment.status != "CANCELLED" %}
-                                    <button onclick="openCancelModal({{ appointment.id }}, {{ appointment.fee }})" class="inline-flex items-center gap-1 text-red-600 font-medium hover:underline" title="Cancel Appointment">
+                                    {% if appointment.status == "CANCELLED" %}
+                                        {% if appointment.refund %}
+                                        <a href="{% url 'refund_slip' appointment.refund.id %}" target="_blank" class="inline-flex items-center gap-1 text-amber-600 font-medium hover:underline" title="View & Download Refund Slip">
+                                            <i class="fa-solid fa-file-invoice-dollar"></i> Refund
+                                        </a>
+                                        {% endif %}
+                                    {% elif appointment.payment.status == "PAID" %}
+                                    <button onclick="openCancelModal({{ appointment.id }}, {{ appointment.fee }}, 'PAID')" class="inline-flex items-center gap-1 text-red-600 font-medium hover:underline" title="Cancel Appointment (refund eligible)">
                                         <i class="fa-solid fa-ban"></i> Cancel
                                     </button>
-                                    {% else %}
-                                    <a href="{% url 'refund_slip' appointment.refund.id %}" target="_blank" class="inline-flex items-center gap-1 text-amber-600 font-medium hover:underline" title="View & Download Refund Slip">
-                                        <i class="fa-solid fa-file-invoice-dollar"></i> Refund
-                                    </a>
+                                    {% elif appointment.payment.status == "PENDING" %}
+                                    <form method="post" action="{% url 'cancel_appointment' appointment.id %}" class="inline" onsubmit="return confirm('⚠️ Important: Your payment is still pending verification. As per our policy, refund will only be issued AFTER the payment is confirmed/paid. If you cancel now, your pending payment will be marked as failed and no refund will be processed.')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="inline-flex items-center gap-1 text-slate-500 font-medium hover:underline" title="Cancel appointment (payment not yet verified)">
+                                            <i class="fa-solid fa-ban"></i> Cancel
+                                        </button>
+                                    </form>
                                     {% endif %}
                                 </div>
                             </td>
@@ -194,8 +189,8 @@
             </h3>
             <button onclick="document.getElementById('cancelModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
         </div>
-        <p class="text-xs text-slate-600">Canceling an appointment generates a 90% refund of the original fee (10% deduction applies).</p>
-        <div class="bg-slate-50 p-4 rounded-xl space-y-2 text-xs border border-slate-200">
+        <p class="text-xs text-slate-600" id="cancelModalText">Canceling this appointment will generate a 90% refund of the original fee (10% deduction applies).</p>
+        <div id="refundDetails" class="bg-slate-50 p-4 rounded-xl space-y-2 text-xs border border-slate-200">
             <div class="flex justify-between text-slate-500"><span>Original Fee Paid:</span><span id="refundOriginalFee">BDT 1500.00</span></div>
             <div class="flex justify-between text-red-600"><span>Deduction Fee (10%):</span><span id="refundDeduction">-BDT 150.00</span></div>
             <div class="flex justify-between font-bold text-slate-900 text-sm border-t border-slate-200 pt-2">
@@ -204,13 +199,13 @@
         </div>
         <form method="post" action="" id="cancelForm" class="space-y-3">
             {% csrf_token %}
-            <div>
+            <div id="reasonField">
                 <label class="block text-slate-600 mb-1 text-xs">Reason for cancellation (optional)</label>
                 <textarea name="reason" rows="2" placeholder="Enter reason..." class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs"></textarea>
             </div>
             <div class="flex gap-3 pt-2">
                 <button type="button" onclick="document.getElementById('cancelModal').classList.add('hidden')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold">Back</button>
-                <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-semibold shadow-sm">Confirm Cancellation</button>
+                <button type="submit" id="confirmCancelBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-semibold shadow-sm">Confirm Cancellation</button>
             </div>
         </form>
     </div>
@@ -218,31 +213,32 @@
 
 <script>
 // Update cancel modal with actual appointment data
-function openCancelModal(appointmentId, fee) {
+function openCancelModal(appointmentId, fee, paymentStatus) {
     var form = document.getElementById('cancelForm');
     form.action = '/cancel/' + appointmentId + '/';
     var deduction = (fee * 0.10).toFixed(2);
     var refund = (fee * 0.90).toFixed(2);
-    document.getElementById('refundOriginalFee').textContent = 'BDT ' + parseFloat(fee).toFixed(2);
-    document.getElementById('refundDeduction').textContent = '-BDT ' + deduction;
-    document.getElementById('refundAmount').textContent = 'BDT ' + refund;
+    var refundDetails = document.getElementById('refundDetails');
+    var modalText = document.getElementById('cancelModalText');
+    var reasonField = document.getElementById('reasonField');
+    var confirmBtn = document.getElementById('confirmCancelBtn');
+    if (paymentStatus === 'PAID') {
+        modalText.textContent = 'Canceling this appointment will generate a 90% refund of the original fee (10% deduction applies).';
+        refundDetails.style.display = 'block';
+        reasonField.style.display = 'block';
+        confirmBtn.textContent = 'Confirm Cancellation';
+        confirmBtn.className = 'flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-semibold shadow-sm';
+        document.getElementById('refundOriginalFee').textContent = 'BDT ' + parseFloat(fee).toFixed(2);
+        document.getElementById('refundDeduction').textContent = '-BDT ' + deduction;
+        document.getElementById('refundAmount').textContent = 'BDT ' + refund;
+    } else {
+        modalText.innerHTML = '<strong class="text-amber-700">Your payment is still pending verification.</strong> Since no payment was confirmed, no refund is required. The appointment will be cancelled and your pending payment will be marked as failed.';
+        refundDetails.style.display = 'none';
+        reasonField.style.display = 'none';
+        confirmBtn.textContent = 'Cancel Appointment';
+        confirmBtn.className = 'flex-1 bg-slate-700 hover:bg-slate-800 text-white py-2 rounded-lg text-xs font-semibold shadow-sm';
+    }
     document.getElementById('cancelModal').classList.remove('hidden');
 }
-
-{% if has_pending_payment %}
-// Auto-refresh every 10 seconds when there's a pending payment
-var seconds = 10;
-var countdownEl = document.getElementById('countdown');
-if (countdownEl) {
-    var interval = setInterval(function() {
-        seconds--;
-        if (countdownEl) countdownEl.textContent = seconds;
-        if (seconds <= 0) {
-            clearInterval(interval);
-            location.reload();
-        }
-    }, 1000);
-}
-{% endif %}
 </script>
 {% endblock %}

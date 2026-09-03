@@ -16,7 +16,10 @@ def vet_dashboard(request):
 
     try:
         doctor = request.user.doctor_profile
-        all_appointments = doctor.appointments.all()
+        all_appointments = doctor.appointments.filter(
+            payment__status='PAID',
+            status__in=['CONFIRMED', 'COMPLETED'],
+        ).order_by('-date', '-time')
         my_patients = all_appointments.values_list('patient', flat=True).distinct()
         recent_medical_histories = MedicalHistory.objects.filter(
             patient_id__in=list(my_patients),
@@ -69,7 +72,10 @@ def booked_appointments(request):
     from patient.models import MedicalHistory
     try:
         doctor = request.user.doctor_profile
-        appointments = doctor.appointments.all().select_related('patient__user', 'payment')
+        appointments = doctor.appointments.filter(
+            payment__status='PAID',
+            status__in=['CONFIRMED', 'COMPLETED'],
+        ).select_related('patient__user', 'payment')
         appointment_data = []
         for apt in appointments:
             histories = apt.patient.medical_histories.filter(appointment=apt).order_by('-date')
@@ -119,6 +125,11 @@ def view_patient(request, appointment_id):
 
     if appointment.doctor.user != request.user:
         return render(request, '403.html', status=403)
+
+    if appointment.payment.status != 'PAID' or appointment.status not in ['CONFIRMED', 'COMPLETED']:
+        from django.contrib import messages as _m
+        _m.warning(request, 'This appointment is not available. It must be paid and confirmed first.')
+        return redirect('vet_booked_appointments')
 
     patient = appointment.patient
     medical_histories = patient.medical_histories.all().order_by('-date')

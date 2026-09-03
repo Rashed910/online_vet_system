@@ -28,7 +28,7 @@
                     {% elif data.appointment.status == 'CONFIRMED' %}
                     <span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium text-[10px]">Confirmed</span>
                     {% elif data.appointment.status == 'COMPLETED' %}
-                    <span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium text-[10px]">Completed</span>
+                    <span class="bg-blue-800 text-white px-2.5 py-1 rounded-full font-medium text-[10px]">Completed</span>
                     {% else %}
                     <span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full font-medium text-[10px]">{{ data.appointment.status }}</span>
                     {% endif %}

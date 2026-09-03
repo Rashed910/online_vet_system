@@ -69,7 +69,9 @@
                     <div class="text-right">
                         <p class="font-semibold text-slate-700 text-xs">{{ appointment.date|date:"M d" }} | {{ appointment.time|time:"h:i A" }}</p>
                         {% if appointment.status == 'COMPLETED' %}
-                        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Completed</span>
+                        <span class="text-[10px] bg-blue-800 text-white px-2 py-0.5 rounded-full font-semibold">Completed</span>
+                        {% elif appointment.status == 'CONFIRMED' %}
+                        <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Confirmed</span>
                         {% elif appointment.status == 'CANCELLED' %}
                         <span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold">Cancelled</span>
                         {% else %}

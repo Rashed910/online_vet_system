@@ -152,23 +152,25 @@ def approve_payment(request, payment_id):
     if request.user.role != 'ADMIN':
         return render(request, '403.html', status=403)
     if request.method == 'POST':
+        from django.db import transaction
         payment = get_object_or_404(Payment, id=payment_id)
         action = request.POST.get('action', 'approve')
-        if action == 'approve':
-            payment.status = 'PAID'
-            payment.paid_at = timezone.now()
-            payment.save()
-            appointment = payment.appointment
-            appointment.status = 'CONFIRMED'
-            appointment.save()
-            messages.success(request, f'Payment #{payment.id} approved. Appointment #{appointment.id} confirmed.')
-        elif action == 'reject':
-            payment.status = 'FAILED'
-            payment.save()
-            appointment = payment.appointment
-            appointment.status = 'CANCELLED'
-            appointment.save()
-            messages.warning(request, f'Payment #{payment.id} rejected. Appointment #{appointment.id} cancelled.')
+        with transaction.atomic():
+            if action == 'approve':
+                payment.status = 'PAID'
+                payment.paid_at = timezone.now()
+                payment.save(update_fields=['status', 'paid_at'])
+                appointment = payment.appointment
+                appointment.status = 'CONFIRMED'
+                appointment.save(update_fields=['status'])
+                messages.success(request, f'Payment #{payment.id} approved. Appointment #{appointment.id} status updated to CONFIRMED.')
+            elif action == 'reject':
+                payment.status = 'FAILED'
+                payment.save(update_fields=['status'])
+                appointment = payment.appointment
+                appointment.status = 'CANCELLED'
+                appointment.save(update_fields=['status'])
+                messages.warning(request, f'Payment #{payment.id} rejected. Appointment #{appointment.id} cancelled.')
     return redirect('admin_payments')
 
 

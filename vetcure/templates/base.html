@@ -275,8 +275,16 @@
         {% if messages %}
         <div class="max-w-7xl mx-auto px-4 pt-4 space-y-2">
             {% for message in messages %}
-            <div class="rounded-xl p-3 text-xs font-medium">
-                {{ message }}
+            <div class="rounded-xl p-3 text-xs font-medium flex items-center gap-2
+                {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200
+                {% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200
+                {% elif message.tags == 'warning' %}bg-amber-50 text-amber-800 border border-amber-200
+                {% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                {% if message.tags == 'success' %}<i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'error' %}<i class="fa-solid fa-circle-xmark"></i>
+                {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+                <span>{{ message }}</span>
             </div>
             {% endfor %}
         </div>

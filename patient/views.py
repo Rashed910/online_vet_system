@@ -54,7 +54,10 @@ def cancel_refund_list(request):
         return render(request, '403.html', status=403)
     try:
         patient = request.user.patient_profile
-        appointments = patient.appointments.filter(status='CANCELLED').prefetch_related('refund')
+        appointments = patient.appointments.filter(
+            status='CANCELLED',
+            payment__status='REFUNDED',
+        ).prefetch_related('refund')
     except Patient.DoesNotExist:
         patient = None
         appointments = []

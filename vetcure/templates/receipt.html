@@ -46,6 +46,10 @@
                     <span class="font-mono font-bold text-slate-800">{{ appointment.payment.transaction_id }}</span>
                 </div>
                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <span class="text-slate-400 block text-[10px]">Phone Number</span>
+                    <span class="font-mono font-bold text-slate-800">{{ appointment.payment.phone_number|default:"-" }}</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 col-span-2">
                     <span class="text-slate-400 block text-[10px]">Payment Date</span>
                     <span class="font-bold text-slate-800">{{ appointment.payment.created_at|date:"M d, Y h:i A" }}</span>
                 </div>

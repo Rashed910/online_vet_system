@@ -16,6 +16,7 @@
                         <th class="p-3">Patient</th>
                         <th class="p-3">Doctor</th>
                         <th class="p-3">Method</th>
+                        <th class="p-3">Phone</th>
                         <th class="p-3">Transaction ID</th>
                         <th class="p-3">Amount</th>
                         <th class="p-3">Status</th>
@@ -25,13 +26,11 @@
                 <tbody class="divide-y divide-slate-100">
                     {% for p in payments %}
                     <tr>
-                        <td class="p-3 font-semibold text-slate-800">#{{ p.id }}</td>
-                        <td class="p-3">
-                            <span class="font-bold text-emerald-600">{{ p.appointment.patient.pet_name }}</span>
-                            <span class="text-slate-400 block text-[10px]">{{ p.appointment.patient.user.get_full_name }}</span>
-                        </td>
-                        <td class="p-3">{{ p.appointment.doctor }}</td>
-                        <td class="p-3">{{ p.get_payment_method_display }}</td>
+                        <td class="p-3">#{{ p.id }}</td>
+                        <td class="p-3 font-bold">{{ p.appointment.patient.user.get_full_name }}</td>
+                        <td class="p-3">Dr. {{ p.appointment.doctor.user.get_full_name }}</td>
+                        <td class="p-3">{{ p.get_payment_method_display|default:p.payment_method }}</td>
+                        <td class="p-3 font-mono text-[10px]">{{ p.phone_number|default:"-" }}</td>
                         <td class="p-3 font-mono text-[10px]">{{ p.transaction_id }}</td>
                         <td class="p-3 font-semibold">BDT {{ p.amount }}</td>
                         <td class="p-3">
