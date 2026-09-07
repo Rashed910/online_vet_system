@@ -40,9 +40,21 @@ def dashboard(request):
 def my_appointments(request):
     if request.user.role != 'PATIENT':
         return render(request, '403.html', status=403)
+    from datetime import datetime
+
+    selected_date_str = request.GET.get('date', '').strip()
+    selected_date = None
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = None
+
     try:
         patient = request.user.patient_profile
         appointments = patient.appointments.select_related('doctor__user', 'payment').order_by('-date', '-time')
+        if selected_date is not None:
+            appointments = appointments.filter(date=selected_date)
     except Patient.DoesNotExist:
         patient = None
         appointments = []
@@ -50,6 +62,7 @@ def my_appointments(request):
     context = {
         'patient': patient,
         'appointments': appointments,
+        'selected_date': selected_date_str,
     }
     return render(request, 'my_appointments.html', context)
 
@@ -58,12 +71,24 @@ def my_appointments(request):
 def cancel_refund_list(request):
     if request.user.role != 'PATIENT':
         return render(request, '403.html', status=403)
+    from datetime import datetime
+
+    selected_date_str = request.GET.get('date', '').strip()
+    selected_date = None
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = None
+
     try:
         patient = request.user.patient_profile
         appointments = patient.appointments.filter(
             status='CANCELLED',
             payment__status='REFUNDED',
         ).prefetch_related('refund')
+        if selected_date is not None:
+            appointments = appointments.filter(date=selected_date)
     except Patient.DoesNotExist:
         patient = None
         appointments = []
@@ -83,6 +108,7 @@ def cancel_refund_list(request):
     context = {
         'patient': patient,
         'enriched_appointments': enriched_appointments,
+        'selected_date': selected_date_str,
     }
     return render(request, 'cancel_refund_list.html', context)
 
@@ -183,11 +209,23 @@ def update_patient_profile(request):
 def my_prescriptions(request):
     if request.user.role != 'PATIENT':
         return render(request, '403.html', status=403)
+    from datetime import datetime
+
+    selected_date_str = request.GET.get('date', '').strip()
+    selected_date = None
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = None
+
     try:
         patient = request.user.patient_profile
         prescriptions = MedicalHistory.objects.filter(
             patient=patient
         ).select_related('appointment__doctor__user').order_by('-date', '-created_at')
+        if selected_date is not None:
+            prescriptions = prescriptions.filter(date=selected_date)
     except Patient.DoesNotExist:
         patient = None
         prescriptions = []
@@ -195,20 +233,31 @@ def my_prescriptions(request):
     context = {
         'patient': patient,
         'prescriptions': prescriptions,
+        'selected_date': selected_date_str,
     }
     return render(request, 'my_prescriptions.html', context)
 
 
 @login_required
 def print_prescription(request, history_id):
-    if request.user.role != 'PATIENT':
+    prescription = None
+    patient = None
+    if request.user.role == 'PATIENT':
+        try:
+            patient = request.user.patient_profile
+            prescription = MedicalHistory.objects.get(id=history_id, patient=patient)
+        except (Patient.DoesNotExist, MedicalHistory.DoesNotExist):
+            messages.error(request, 'Prescription not found.')
+            return redirect('my_prescriptions')
+    elif request.user.role == 'DOCTOR':
+        try:
+            prescription = MedicalHistory.objects.select_related('patient__user', 'appointment__doctor__user').get(id=history_id)
+            patient = prescription.patient
+        except MedicalHistory.DoesNotExist:
+            messages.error(request, 'Prescription not found.')
+            return redirect('vet_dashboard')
+    else:
         return render(request, '403.html', status=403)
-    try:
-        patient = request.user.patient_profile
-        prescription = MedicalHistory.objects.get(id=history_id, patient=patient)
-    except (Patient.DoesNotExist, MedicalHistory.DoesNotExist):
-        messages.error(request, 'Prescription not found.')
-        return redirect('my_prescriptions')
 
     context = {
         'patient': patient,

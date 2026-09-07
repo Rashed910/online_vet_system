@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'booking',
     'chatbot',
     'vet',
+    'vetcure',
 ]
 
 MIDDLEWARE = [

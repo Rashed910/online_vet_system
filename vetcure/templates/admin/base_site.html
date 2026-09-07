@@ -1,0 +1,28 @@
+{% extends 'admin/base_site.html' %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.reports-link {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 10px 20px;
+    background: #417690;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.reports-link:hover {
+    background: #365f7d;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin: 20px 0; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px;">
+    <h2 style="margin-top: 0; color: #333;">Reports Dashboard</h2>
+    <p style="color: #666; margin-bottom: 15px;">Access detailed reports and analytics for your veterinary management system.</p>
+    <a href="/admin/reports/" class="reports-link">View Reports Dashboard</a>
+</div>
+{{ block.super }}
+{% endblock %}

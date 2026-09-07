@@ -50,37 +50,37 @@
             <!-- Add Prescription Form -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
-                    <i class="fa-solid fa-pills text-emerald-600"></i> <span id="prescription-form-title">Add Prescription</span>
+                    <i class="fa-solid fa-pills text-emerald-600"></i> <span id="prescription-form-title">{% if existing_prescription %}Update Prescription{% else %}Add Prescription{% endif %}</span>
                 </h2>
                 <form method="post" id="prescription-form" class="space-y-3">
                     {% csrf_token %}
                     <input type="hidden" name="action" id="prescription-action" value="add_prescription">
-                    <input type="hidden" name="history_id" id="prescription-history-id" value="">
+                    <input type="hidden" name="history_id" id="prescription-history-id" value="{% if existing_prescription %}{{ existing_prescription.id }}{% endif %}">
                     <div>
                         <label class="block text-slate-600 mb-1 text-xs">Date</label>
-                        <input type="date" name="date" id="prescription-date" value="{{ appointment.date|date:'Y-m-d' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                        <input type="date" name="date" id="prescription-date" value="{% if existing_prescription %}{{ existing_prescription.date|date:'Y-m-d' }}{% else %}{{ appointment.date|date:'Y-m-d' }}{% endif %}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
                     </div>
                     <div>
                         <label class="block text-slate-600 mb-1 text-xs">Medicines *</label>
-                        <textarea name="medicines" id="prescription-medicines" rows="2" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Vitamin B-complex, Antibiotic X, Probiotics..."></textarea>
+                        <textarea name="medicines" id="prescription-medicines" rows="2" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Vitamin B-complex, Antibiotic X, Probiotics...">{% if existing_prescription %}{{ existing_prescription.medicines }}{% endif %}</textarea>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-slate-600 mb-1 text-xs">Dosage</label>
-                            <input type="text" name="dosage" id="prescription-dosage" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 1 tablet, 5ml">
+                            <input type="text" name="dosage" id="prescription-dosage" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 1 tablet, 5ml" value="{% if existing_prescription %}{{ existing_prescription.dosage }}{% endif %}">
                         </div>
                         <div>
                             <label class="block text-slate-600 mb-1 text-xs">Frequency</label>
-                            <input type="text" name="frequency" id="prescription-frequency" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Twice daily">
+                            <input type="text" name="frequency" id="prescription-frequency" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Twice daily" value="{% if existing_prescription %}{{ existing_prescription.frequency }}{% endif %}">
                         </div>
                     </div>
                     <div>
                         <label class="block text-slate-600 mb-1 text-xs">Duration</label>
-                        <input type="text" name="duration" id="prescription-duration" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 7 days, 2 weeks">
+                        <input type="text" name="duration" id="prescription-duration" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 7 days, 2 weeks" value="{% if existing_prescription %}{{ existing_prescription.duration }}{% endif %}">
                     </div>
                     <div>
                         <label class="block text-slate-600 mb-1 text-xs">Notes</label>
-                        <textarea name="notes" id="prescription-notes" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="Additional instructions..."></textarea>
+                        <textarea name="notes" id="prescription-notes" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="Additional instructions...">{% if existing_prescription %}{{ existing_prescription.notes }}{% endif %}</textarea>
                     </div>
 
                     <div class="flex gap-2">
@@ -88,7 +88,7 @@
                             Cancel
                         </button>
                         <button type="submit" id="prescription-submit-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm">
-                            <i class="fa-solid fa-plus"></i> Save Prescription
+                            <i class="fa-solid fa-plus"></i> {% if existing_prescription %}Update Prescription{% else %}Save Prescription{% endif %}
                         </button>
                     </div>
                 </form>

@@ -3,7 +3,7 @@ from .models import Patient, MedicalHistory, Prescription
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ('user', 'user_email', 'user_phone', 'created_at')
+    list_display = ('id', 'user', 'user_email', 'user_phone', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('user__username', 'user__email', 'user__phone')
     ordering = ('-created_at',)
@@ -21,14 +21,14 @@ class PatientAdmin(admin.ModelAdmin):
 
 @admin.register(MedicalHistory)
 class MedicalHistoryAdmin(admin.ModelAdmin):
-    list_display = ('patient', 'date', 'diagnosis')
+    list_display = ('id', 'patient', 'date', 'diagnosis')
     list_filter = ('date',)
     search_fields = ('patient__user__username', 'patient__user__email', 'diagnosis')
     ordering = ('-date',)
 
 @admin.register(Prescription)
 class PrescriptionAdmin(admin.ModelAdmin):
-    list_display = ('appointment', 'created_at')
+    list_display = ('id', 'appointment', 'created_at')
     list_filter = ('created_at',)
     search_fields = ('appointment__patient__user__username', 'appointment__patient__user__email', 'medicines')
     ordering = ('-created_at',)

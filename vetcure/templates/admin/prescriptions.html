@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Prescriptions - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">All Prescriptions</h1>
+    
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 text-slate-500 uppercase">
+                    <tr>
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Patient</th>
+                        <th class="p-3">Doctor</th>
+                        <th class="p-3">Medicines</th>
+                        <th class="p-3">Dosage</th>
+                        <th class="p-3">Frequency</th>
+                        <th class="p-3">Duration</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for prescription in prescriptions %}
+                    <tr>
+                        <td class="p-3">{{ prescription.date|date:"M d, Y" }}</td>
+                        <td class="p-3 font-semibold text-slate-800">{{ prescription.patient.user.get_full_name }}</td>
+                        <td class="p-3">
+                            {% if prescription.appointment %}
+                                {{ prescription.appointment.doctor.user.get_full_name }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td class="p-3">{{ prescription.medicines|truncatewords:5|default:"-" }}</td>
+                        <td class="p-3">{{ prescription.dosage|default:"-" }}</td>
+                        <td class="p-3">{{ prescription.frequency|default:"-" }}</td>
+                        <td class="p-3">{{ prescription.duration|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="p-6 text-center text-slate-500">No prescriptions found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

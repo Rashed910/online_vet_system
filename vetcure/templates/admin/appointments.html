@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Appointments - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Manage Appointments</h1>
+    
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 text-slate-500 uppercase">
+                    <tr>
+                        <th class="p-3">Patient</th>
+                        <th class="p-3">Doctor</th>
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Time</th>
+                        <th class="p-3">Fee</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Payment</th>
+                        <th class="p-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-800">{{ appointment.patient.user.get_full_name }}</td>
+                        <td class="p-3">{{ appointment.doctor.user.get_full_name }}</td>
+                        <td class="p-3">{{ appointment.date|date:"M d, Y" }}</td>
+                        <td class="p-3">{{ appointment.time|time:"h:i A" }}</td>
+                        <td class="p-3">BDT {{ appointment.fee }}</td>
+                        <td class="p-3">
+                            <form method="post" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_status">
+                                <input type="hidden" name="appointment_id" value="{{ appointment.id }}">
+                                <select name="status" onchange="this.form.submit()" class="text-xs border border-slate-200 rounded-lg p-1 outline-none focus:ring-1 focus:ring-emerald-500">
+                                    <option value="PENDING" {% if appointment.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                    <option value="CONFIRMED" {% if appointment.status == 'CONFIRMED' %}selected{% endif %}>Confirmed</option>
+                                    <option value="COMPLETED" {% if appointment.status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                    <option value="CANCELLED" {% if appointment.status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="p-3">
+                            {% if appointment.payment %}
+                                {% if appointment.payment.status == 'PAID' %}
+                                <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Paid</span>
+                                {% elif appointment.payment.status == 'PENDING' %}
+                                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
+                                {% elif appointment.payment.status == 'REFUNDED' %}
+                                <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Refunded</span>
+                                {% else %}
+                                <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">{{ appointment.payment.status }}</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">No Payment</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-3 text-right">
+                            <a href="{% url 'receipt' appointment.id %}" target="_blank" class="text-emerald-600 hover:underline text-[11px] font-semibold">
+                                <i class="fa-solid fa-receipt"></i> Receipt
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="p-6 text-center text-slate-500">No appointments found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

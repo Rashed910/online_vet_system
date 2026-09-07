@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Schedules - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Doctor Schedules</h1>
+    
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <form method="get" class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-slate-600 mb-1 text-xs font-semibold">Select Doctor</label>
+                <select name="doctor_id" onchange="this.form.submit()" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs outline-none focus:ring-1 focus:ring-emerald-500">
+                    <option value="">-- Select a doctor to view schedule --</option>
+                    {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}" {% if selected_doctor and selected_doctor.id == doctor.id %}selected{% endif %}>
+                        Dr. {{ doctor.user.get_full_name }} - {{ doctor.specialty }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+    
+    {% if selected_doctor %}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-doctor text-emerald-600"></i>
+                    Dr. {{ selected_doctor.user.get_full_name }}
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">{{ selected_doctor.specialty }} | {{ selected_doctor.experience_years }} years experience</p>
+            </div>
+            <button onclick="document.getElementById('addScheduleModal').classList.remove('hidden')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-plus"></i> Add Schedule
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 text-slate-500 uppercase">
+                    <tr>
+                        <th class="p-3">Day</th>
+                        <th class="p-3">Start Time</th>
+                        <th class="p-3">End Time</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for availability in availabilities %}
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-800">{{ availability.get_day_of_week_display }}</td>
+                        <td class="p-3">{{ availability.start_time|time:"h:i A" }}</td>
+                        <td class="p-3">{{ availability.end_time|time:"h:i A" }}</td>
+                        <td class="p-3">
+                            {% if availability.is_available %}
+                            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Available</span>
+                            {% else %}
+                            <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">Unavailable</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-3 text-right">
+                            <form method="post" class="inline" onsubmit="return confirm('Remove this schedule?')">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="availability_id" value="{{ availability.id }}">
+                                <button type="submit" class="text-red-600 hover:underline text-[11px] font-semibold">
+                                    <i class="fa-solid fa-trash"></i> Remove
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-slate-500">No schedule set for this doctor.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if not selected_doctor %}
+    <div class="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
+        <i class="fa-solid fa-calendar-days text-4xl text-slate-300 mb-3"></i>
+        <p class="text-slate-500 text-sm">Select a doctor above to view and manage their weekly schedule.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if selected_doctor %}
+<!-- Add Schedule Modal -->
+<div id="addScheduleModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-900 text-lg">Add Schedule</h3>
+            <button onclick="document.getElementById('addScheduleModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
+        </div>
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="doctor_id" value="{{ selected_doctor.id }}">
+            <div>
+                <label class="block text-slate-600 mb-1 text-xs">Day of Week</label>
+                <select name="day_of_week" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                    {% for value, label in day_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Start Time</label>
+                    <input type="time" name="start_time" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">End Time</label>
+                    <input type="time" name="end_time" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('addScheduleModal').classList.add('hidden')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold">Cancel</button>
+                <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold shadow-sm">Add Schedule</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

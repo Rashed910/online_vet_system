@@ -34,6 +34,14 @@
             <!-- Payment Info -->
             <div class="grid grid-cols-2 gap-4 text-xs">
                 <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <span class="text-slate-400 block text-[10px]">Payment ID</span>
+                    <span class="font-mono font-bold text-slate-800">#{{ appointment.payment.id }}</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <span class="text-slate-400 block text-[10px]">Patient ID</span>
+                    <span class="font-mono font-bold text-slate-800">#{{ appointment.patient.id }}</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
                     <span class="text-slate-400 block text-[10px]">Amount Paid</span>
                     <span class="text-lg font-bold text-emerald-600">BDT {{ appointment.fee }}</span>
                 </div>

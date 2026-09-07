@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Admin Dashboard</h1>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-6 rounded-2xl border border-emerald-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-emerald-700 text-sm font-bold">Total Patients</span>
+                <i class="fa-solid fa-users text-emerald-600 text-lg"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-emerald-700">{{ total_patients }}</div>
+        </div>
+        
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 p-6 rounded-2xl border border-blue-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-blue-700 text-sm font-bold">Active Doctors</span>
+                <i class="fa-solid fa-user-doctor text-blue-600 text-lg"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-blue-700">{{ total_doctors }}</div>
+        </div>
+        
+        <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 rounded-2xl border border-amber-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-amber-700 text-sm font-bold">Total Appointments</span>
+                <i class="fa-solid fa-calendar-check text-amber-600 text-lg"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-amber-700">{{ total_appointments }}</div>
+        </div>
+        
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100/50 p-6 rounded-2xl border border-purple-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+                <span class="text-purple-700 text-sm font-bold">Total Prescriptions</span>
+                <i class="fa-solid fa-prescription text-purple-600 text-lg"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-purple-700">{{ total_prescriptions }}</div>
+        </div>
+    </div>
+    
+    <!-- Financial Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-dollar-sign text-emerald-600"></i> Total Revenue
+            </h3>
+            <div class="text-2xl font-extrabold text-emerald-600">BDT {{ total_revenue|floatformat:2 }}</div>
+            <p class="text-xs text-slate-500">From {{ pending_payments }} pending payments</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-rotate-left text-amber-600"></i> Total Refunded
+            </h3>
+            <div class="text-2xl font-extrabold text-amber-600">BDT {{ total_refunded|floatformat:2 }}</div>
+            <p class="text-xs text-slate-500">{{ pending_refunds }} pending refunds</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-blue-600"></i> Net Income
+            </h3>
+            <div class="text-2xl font-extrabold text-blue-600">BDT {{ net_income|floatformat:2 }}</div>
+            <p class="text-xs text-slate-500">After refunds: BDT {{ net_income|floatformat:2 }}</p>
+        </div>
+    </div>
+    
+    <!-- Appointment Status -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
+        <h2 class="font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-chart-bar text-emerald-600"></i> Appointment Status Overview
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
+                <div class="text-2xl font-extrabold text-amber-700">{{ pending_appointments }}</div>
+                <div class="text-xs text-amber-600 font-medium">Pending</div>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 text-center">
+                <div class="text-2xl font-extrabold text-blue-700">{{ confirmed_appointments }}</div>
+                <div class="text-xs text-blue-600 font-medium">Confirmed</div>
+            </div>
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-center">
+                <div class="text-2xl font-extrabold text-emerald-700">{{ completed_appointments }}</div>
+                <div class="text-xs text-emerald-600 font-medium">Completed</div>
+            </div>
+            <div class="bg-red-50 p-4 rounded-xl border border-red-200 text-center">
+                <div class="text-2xl font-extrabold text-red-700">{{ cancelled_appointments }}</div>
+                <div class="text-xs text-red-600 font-medium">Cancelled</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Appointments -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+            <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-check text-emerald-600"></i> Recent Appointments
+            </h2>
+            <a href="{% url 'admin:admin_appointments' %}" class="text-[10px] text-emerald-600 font-semibold hover:underline">View All →</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 text-slate-500 uppercase">
+                    <tr>
+                        <th class="p-3">Patient</th>
+                        <th class="p-3">Doctor</th>
+                        <th class="p-3">Date</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Payment</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for appointment in recent_appointments %}
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-800">{{ appointment.patient.user.get_full_name }}</td>
+                        <td class="p-3">{{ appointment.doctor.user.get_full_name }}</td>
+                        <td class="p-3">{{ appointment.date|date:"M d, Y" }}</td>
+                        <td class="p-3">
+                            {% if appointment.status == 'COMPLETED' %}
+                            <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Completed</span>
+                            {% elif appointment.status == 'CONFIRMED' %}
+                            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Confirmed</span>
+                            {% elif appointment.status == 'CANCELLED' %}
+                            <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">Cancelled</span>
+                            {% else %}
+                            <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-3">
+                            {% if appointment.payment %}
+                                {% if appointment.payment.status == 'PAID' %}
+                                <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">Paid</span>
+                                {% elif appointment.payment.status == 'PENDING' %}
+                                <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Pending</span>
+                                {% else %}
+                                <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">Failed</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">No Payment</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-slate-500">No appointments yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a href="{% url 'admin:admin_doctors' %}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition space-y-3">
+            <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 text-xl">
+                <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 text-sm">Manage Doctors</h3>
+                <p class="text-xs text-slate-500">Add, edit, or remove veterinarians</p>
+            </div>
+        </a>
+        
+        <a href="{% url 'admin:admin_patients' %}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition space-y-3">
+            <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-xl">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 text-sm">Manage Patients</h3>
+                <p class="text-xs text-slate-500">View and manage patient records</p>
+            </div>
+        </a>
+        
+        <a href="{% url 'admin:admin_prescriptions' %}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition space-y-3">
+            <div class="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 text-xl">
+                <i class="fa-solid fa-prescription"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 text-sm">Prescriptions</h3>
+                <p class="text-xs text-slate-500">Audit all medical prescriptions</p>
+            </div>
+        </a>
+        
+        <a href="{% url 'admin:admin_reports' %}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition space-y-3">
+            <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600 text-xl">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 text-sm">Reports</h3>
+                <p class="text-xs text-slate-500">Daily, weekly, monthly reports</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

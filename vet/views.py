@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from vet.models import Doctor, Availability
+from patient.models import MedicalHistory
 from django.contrib.auth import get_user_model
 from booking.views import validate_phone_by_country
 User = get_user_model()
@@ -114,9 +116,21 @@ def booked_appointments(request):
 def patient_medical_history(request):
     if request.user.role != 'DOCTOR':
         return render(request, '403.html', status=403)
+    from datetime import datetime
+
+    selected_date_str = request.GET.get('date', '').strip()
+    selected_date = None
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = None
+
     try:
         doctor = request.user.doctor_profile
-        appointments = doctor.appointments.all().select_related('patient__user').prefetch_related('patient__medical_histories')
+        appointments = doctor.appointments.filter(status='COMPLETED').select_related('patient__user').prefetch_related('patient__medical_histories')
+        if selected_date is not None:
+            appointments = appointments.filter(date=selected_date)
     except Exception:
         doctor = None
         appointments = []
@@ -124,8 +138,27 @@ def patient_medical_history(request):
     context = {
         'doctor': doctor,
         'appointments': appointments,
+        'selected_date': selected_date_str,
     }
     return render(request, 'vet_patient_history.html', context)
+
+
+@login_required
+def vet_prescriptions(request):
+    if request.user.role != 'DOCTOR':
+        return render(request, '403.html', status=403)
+    try:
+        doctor = request.user.doctor_profile
+        prescriptions = MedicalHistory.objects.all().select_related('patient__user', 'appointment__doctor__user').order_by('-date', '-created_at')
+    except Exception:
+        doctor = None
+        prescriptions = []
+
+    context = {
+        'doctor': doctor,
+        'prescriptions': prescriptions,
+    }
+    return render(request, 'vet_prescriptions.html', context)
 
 
 @login_required
@@ -162,22 +195,24 @@ def view_patient(request, appointment_id):
             date_str = request.POST.get('date', '').strip()
             from datetime import datetime
             try:
-                date_obj = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else datetime.now().date()
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else appointment.date
             except ValueError:
-                date_obj = datetime.now().date()
+                date_obj = appointment.date
 
             if medicines or dosage or frequency or duration:
-                MedicalHistory.objects.create(
+                MedicalHistory.objects.update_or_create(
                     patient=patient,
                     appointment=appointment,
-                    diagnosis='Consultation',
-                    notes=notes,
-                    medical_suggestion='',
-                    medicines=medicines,
-                    dosage=dosage,
-                    frequency=frequency,
-                    duration=duration,
                     date=date_obj,
+                    defaults={
+                        'diagnosis': 'Consultation',
+                        'notes': notes,
+                        'medical_suggestion': '',
+                        'medicines': medicines,
+                        'dosage': dosage,
+                        'frequency': frequency,
+                        'duration': duration,
+                    }
                 )
                 if appointment.status not in ['COMPLETED', 'CANCELLED']:
                     appointment.status = 'COMPLETED'
@@ -221,6 +256,7 @@ def view_patient(request, appointment_id):
         'appointment': appointment,
         'patient': patient,
         'medical_histories': medical_histories,
+        'existing_prescription': patient.medical_histories.filter(appointment=appointment).first(),
     }
     return render(request, 'vet_view_patient.html', context)
 

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Patients - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <h1 class="text-2xl font-bold text-slate-900">Manage Patients</h1>
+        <button onclick="document.getElementById('addPatientModal').classList.remove('hidden')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm">
+            <i class="fa-solid fa-plus"></i> Add Patient
+        </button>
+    </div>
+    
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 text-slate-500 uppercase">
+                    <tr>
+                        <th class="p-3">Name</th>
+                        <th class="p-3">Email</th>
+                        <th class="p-3">Phone</th>
+                        <th class="p-3">Address</th>
+                        <th class="p-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for patient in patients %}
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-800">{{ patient.user.get_full_name }}</td>
+                        <td class="p-3">{{ patient.user.email }}</td>
+                        <td class="p-3">{{ patient.user.phone|default:"-" }}</td>
+                        <td class="p-3">{{ patient.user.address|default:"-" }}</td>
+                        <td class="p-3 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="editPatient({{ patient.id }}, '{{ patient.user.first_name }}', '{{ patient.user.last_name }}', '{{ patient.user.email }}', '{{ patient.user.phone }}', '{{ patient.user.address|escapejs }}')" class="text-blue-600 hover:underline text-[11px] font-semibold">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </button>
+                                <form method="post" class="inline" onsubmit="return confirm('Delete this patient?')">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="patient_id" value="{{ patient.id }}">
+                                    <button type="submit" class="text-red-600 hover:underline text-[11px] font-semibold">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-slate-500">No patients found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Patient Modal -->
+<div id="addPatientModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-900 text-lg">Add New Patient</h3>
+            <button onclick="document.getElementById('addPatientModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
+        </div>
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">First Name *</label>
+                    <input type="text" name="first_name" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Last Name *</label>
+                    <input type="text" name="last_name" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+            </div>
+            <div>
+                <label class="block text-slate-600 mb-1 text-xs">Email *</label>
+                <input type="email" name="email" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+            </div>
+            <div>
+                <label class="block text-slate-600 mb-1 text-xs">Phone *</label>
+                <input type="text" name="phone" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+            </div>
+            <div>
+                <label class="block text-slate-600 mb-1 text-xs">Address</label>
+                <textarea name="address" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs"></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('addPatientModal').classList.add('hidden')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold">Cancel</button>
+                <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold shadow-sm">Add Patient</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Patient Modal -->
+<div id="editPatientModal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl space-y-4">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 class="font-bold text-slate-900 text-lg">Edit Patient</h3>
+            <button onclick="document.getElementById('editPatientModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
+        </div>
+        <form method="post" class="space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="patient_id" id="edit_patient_id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">First Name *</label>
+                    <input type="text" name="first_name" id="edit_first_name" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+                <div>
+                    <label class="block text-slate-600 mb-1 text-xs">Last Name *</label>
+                    <input type="text" name="last_name" id="edit_last_name" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                </div>
+            </div>
+            <div>
+                <label class="block text-slate-600 mb-1 text-xs">Email *</label>
+                <input type="email" name="email" id="edit_email" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+            </div>
+            <div>
+                <label class="block text-slate-600 mb-1 text-xs">Phone *</label>
+                <input type="text" name="phone" id="edit_phone" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+            </div>
+            <div>
+                <label class="block text-slate-600 mb-1 text-xs">Address</label>
+                <textarea name="address" id="edit_address" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs"></textarea>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('editPatientModal').classList.add('hidden')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-xs font-semibold">Cancel</button>
+                <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-semibold shadow-sm">Update Patient</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function editPatient(id, firstName, lastName, email, phone, address) {
+    document.getElementById('edit_patient_id').value = id;
+    document.getElementById('edit_first_name').value = firstName;
+    document.getElementById('edit_last_name').value = lastName;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_phone').value = phone;
+    document.getElementById('edit_address').value = address;
+    document.getElementById('editPatientModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}
