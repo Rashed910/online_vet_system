@@ -47,67 +47,48 @@
 
         <!-- Medical History & Prescription Forms -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Add Diagnosis / Medical History + Prescription Form -->
+            <!-- Add Prescription Form -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
-                    <i class="fa-solid fa-notes-medical text-emerald-600"></i> <span id="diagnosis-form-title">Add Diagnosis / Medical History</span>
+                    <i class="fa-solid fa-pills text-emerald-600"></i> <span id="prescription-form-title">Add Prescription</span>
                 </h2>
-                <form method="post" id="diagnosis-form" class="space-y-3">
+                <form method="post" id="prescription-form" class="space-y-3">
                     {% csrf_token %}
-                    <input type="hidden" name="action" id="diagnosis-action" value="add_medical_history">
-                    <input type="hidden" name="history_id" id="diagnosis-history-id" value="">
+                    <input type="hidden" name="action" id="prescription-action" value="add_prescription">
+                    <input type="hidden" name="history_id" id="prescription-history-id" value="">
                     <div>
                         <label class="block text-slate-600 mb-1 text-xs">Date</label>
-                        <input type="date" name="date" id="diagnosis-date" value="{{ appointment.date|date:'Y-m-d' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                        <input type="date" name="date" id="prescription-date" value="{{ appointment.date|date:'Y-m-d' }}" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
                     </div>
                     <div>
-                        <label class="block text-slate-600 mb-1 text-xs">Diagnosis *</label>
-                        <textarea name="diagnosis" id="diagnosis-text" rows="2" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Respiratory infection, feather plucking, etc."></textarea>
+                        <label class="block text-slate-600 mb-1 text-xs">Medicines *</label>
+                        <textarea name="medicines" id="prescription-medicines" rows="2" required class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Vitamin B-complex, Antibiotic X, Probiotics..."></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-600 mb-1 text-xs">Dosage</label>
+                            <input type="text" name="dosage" id="prescription-dosage" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 1 tablet, 5ml">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 text-xs">Frequency</label>
+                            <input type="text" name="frequency" id="prescription-frequency" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Twice daily">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 mb-1 text-xs">Duration</label>
+                        <input type="text" name="duration" id="prescription-duration" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 7 days, 2 weeks">
                     </div>
                     <div>
                         <label class="block text-slate-600 mb-1 text-xs">Notes</label>
-                        <textarea name="notes" id="diagnosis-notes" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="Additional observations..."></textarea>
-                    </div>
-
-                    <!-- Prescription / Medical Suggestion Section -->
-                    <div class="border-t border-slate-100 pt-3 mt-3 space-y-3">
-                        <h3 class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
-                            <i class="fa-solid fa-pills text-emerald-600"></i> Prescription / Medical Suggestion
-                        </h3>
-                        <div>
-                            <label class="block text-slate-600 mb-1 text-xs">Medicines</label>
-                            <textarea name="medicines" id="diagnosis-medicines" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Vitamin B-complex, Antibiotic X, Probiotics..."></textarea>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-slate-600 mb-1 text-xs">Dosage</label>
-                                <input type="text" name="dosage" id="diagnosis-dosage" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 1 tablet, 5ml">
-                            </div>
-                            <div>
-                                <label class="block text-slate-600 mb-1 text-xs">Frequency</label>
-                                <input type="text" name="frequency" id="diagnosis-frequency" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Twice daily">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-slate-600 mb-1 text-xs">Duration</label>
-                            <input type="text" name="duration" id="diagnosis-duration" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., 7 days, 2 weeks">
-                        </div>
-                        <div>
-                            <label class="block text-slate-600 mb-1 text-xs flex items-center gap-1">
-                                <i class="fa-solid fa-comment-medical text-emerald-600"></i>
-                                <span class="font-bold text-slate-700">Medical Suggestion</span>
-                                <span class="text-slate-400 text-[10px]">(visible to patient in their medical history)</span>
-                            </label>
-                            <textarea name="medical_suggestion" id="diagnosis-suggestion" rows="3" class="w-full border-2 border-emerald-200 bg-emerald-50/30 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="e.g., Keep the pet hydrated, give vitamin supplements daily, avoid cold environment, follow-up in 7 days..."></textarea>
-                        </div>
+                        <textarea name="notes" id="prescription-notes" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-emerald-500 text-xs" placeholder="Additional instructions..."></textarea>
                     </div>
 
                     <div class="flex gap-2">
                         <button type="button" id="cancel-edit-btn" onclick="cancelEdit()" class="hidden bg-slate-100 text-slate-600 text-xs font-semibold px-4 py-2.5 rounded-xl transition">
                             Cancel
                         </button>
-                        <button type="submit" id="diagnosis-submit-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm">
-                            <i class="fa-solid fa-plus"></i> Save Diagnosis & Prescription
+                        <button type="submit" id="prescription-submit-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm">
+                            <i class="fa-solid fa-plus"></i> Save Prescription
                         </button>
                     </div>
                 </form>
@@ -132,45 +113,29 @@
                 <div id="status-feedback" class="hidden"></div>
             </div>
 
-            <!-- Medical History Records -->
+            <!-- Prescription Records -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                 <h2 class="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
-                    <i class="fa-solid fa-folder-open text-emerald-600"></i> Medical History Records
+                    <i class="fa-solid fa-prescription text-emerald-600"></i> Prescriptions
                 </h2>
                 <div class="space-y-2">
                     {% for history in medical_histories %}
                     <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
                         <div class="flex justify-between font-bold text-slate-700 text-xs">
-                            <span>{{ history.diagnosis|truncatewords:15 }}</span>
+                            <span>{{ history.medicines|truncatewords:10|default:"General Consultation" }}</span>
                             <span class="text-slate-400 text-[10px]">{{ history.date }}</span>
                         </div>
-                        {% if history.notes %}<p class="text-slate-600 text-[11px]"><span class="font-semibold">Notes:</span> {{ history.notes }}</p>{% endif %}
-                        {% if history.medicines or history.dosage or history.frequency or history.duration %}
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2 space-y-1">
-                            <p class="text-[10px] font-bold text-blue-700 flex items-center gap-1">
-                                <i class="fa-solid fa-pills"></i> Prescription
-                            </p>
-                            {% if history.medicines %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Medicines:</span> {{ history.medicines }}</p>{% endif %}
-                            {% if history.dosage %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Dosage:</span> {{ history.dosage }}</p>{% endif %}
-                            {% if history.frequency %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Frequency:</span> {{ history.frequency }}</p>{% endif %}
-                            {% if history.duration %}<p class="text-[11px] text-blue-900"><span class="font-semibold">Duration:</span> {{ history.duration }}</p>{% endif %}
-                        </div>
-                        {% endif %}
-                        {% if history.medical_suggestion %}
-                        <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
-                            <p class="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
-                                <i class="fa-solid fa-comment-medical"></i> Medical Suggestion:
-                            </p>
-                            <p class="text-[11px] text-emerald-800 mt-1">{{ history.medical_suggestion }}</p>
-                        </div>
-                        {% endif %}
+                        {% if history.dosage %}<p class="text-[11px] text-slate-600"><span class="font-semibold">Dosage:</span> {{ history.dosage }}</p>{% endif %}
+                        {% if history.frequency %}<p class="text-[11px] text-slate-600"><span class="font-semibold">Frequency:</span> {{ history.frequency }}</p>{% endif %}
+                        {% if history.duration %}<p class="text-[11px] text-slate-600"><span class="font-semibold">Duration:</span> {{ history.duration }}</p>{% endif %}
+                        {% if history.notes %}<p class="text-[11px] text-slate-500"><span class="font-semibold">Notes:</span> {{ history.notes }}</p>{% endif %}
                         <div class="flex gap-2 pt-1">
-                            <button onclick="editHistory({{ history.id }}, '{{ history.diagnosis|escapejs }}', '{{ history.notes|escapejs }}', '{{ history.date|date:'Y-m-d' }}', '{{ history.medical_suggestion|escapejs|default:'' }}', '{{ history.medicines|escapejs|default:'' }}', '{{ history.dosage|escapejs|default:'' }}', '{{ history.frequency|escapejs|default:'' }}', '{{ history.duration|escapejs|default:'' }}')" class="text-blue-600 hover:underline text-[11px] font-semibold">
+                            <button onclick="editHistory({{ history.id }}, '{{ history.medicines|escapejs|default:'' }}', '{{ history.dosage|escapejs|default:'' }}', '{{ history.frequency|escapejs|default:'' }}', '{{ history.duration|escapejs|default:'' }}', '{{ history.notes|escapejs|default:'' }}', '{{ history.date|date:'Y-m-d' }}')" class="text-blue-600 hover:underline text-[11px] font-semibold">
                                 <i class="fa-solid fa-pen"></i> Edit
                             </button>
-                            <form method="post" class="inline" onsubmit="return confirm('Delete this record?')">
+                            <form method="post" class="inline" onsubmit="return confirm('Delete this prescription?')">
                                 {% csrf_token %}
-                                <input type="hidden" name="action" value="delete_medical_history">
+                                <input type="hidden" name="action" value="delete_prescription">
                                 <input type="hidden" name="history_id" value="{{ history.id }}">
                                 <button type="submit" class="text-red-600 hover:underline text-[11px] font-semibold">
                                     <i class="fa-solid fa-trash"></i> Delete
@@ -179,7 +144,7 @@
                         </div>
                     </div>
                     {% empty %}
-                    <p class="text-slate-500 text-xs">No medical history records yet.</p>
+                    <p class="text-slate-500 text-xs">No prescriptions yet.</p>
                     {% endfor %}
                 </div>
             </div>
@@ -188,35 +153,31 @@
 </div>
 
 <script>
-function editHistory(id, diagnosis, notes, date, suggestion, medicines, dosage, frequency, duration) {
-    document.getElementById('diagnosis-form-title').textContent = 'Edit Diagnosis / Medical History';
-    document.getElementById('diagnosis-action').value = 'edit_medical_history';
-    document.getElementById('diagnosis-history-id').value = id;
-    document.getElementById('diagnosis-date').value = date;
-    document.getElementById('diagnosis-text').value = diagnosis;
-    document.getElementById('diagnosis-notes').value = notes;
-    document.getElementById('diagnosis-suggestion').value = suggestion || '';
-    document.getElementById('diagnosis-medicines').value = medicines || '';
-    document.getElementById('diagnosis-dosage').value = dosage || '';
-    document.getElementById('diagnosis-frequency').value = frequency || '';
-    document.getElementById('diagnosis-duration').value = duration || '';
-    document.getElementById('diagnosis-submit-btn').innerHTML = '<i class="fa-solid fa-save"></i> Update Diagnosis & Prescription';
+function editHistory(id, medicines, dosage, frequency, duration, notes, date) {
+    document.getElementById('prescription-form-title').textContent = 'Edit Prescription';
+    document.getElementById('prescription-action').value = 'edit_prescription';
+    document.getElementById('prescription-history-id').value = id;
+    document.getElementById('prescription-date').value = date;
+    document.getElementById('prescription-medicines').value = medicines || '';
+    document.getElementById('prescription-dosage').value = dosage || '';
+    document.getElementById('prescription-frequency').value = frequency || '';
+    document.getElementById('prescription-duration').value = duration || '';
+    document.getElementById('prescription-notes').value = notes || '';
+    document.getElementById('prescription-submit-btn').innerHTML = '<i class="fa-solid fa-save"></i> Update Prescription';
     document.getElementById('cancel-edit-btn').classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function cancelEdit() {
-    document.getElementById('diagnosis-form-title').textContent = 'Add Diagnosis / Medical History';
-    document.getElementById('diagnosis-action').value = 'add_medical_history';
-    document.getElementById('diagnosis-history-id').value = '';
-    document.getElementById('diagnosis-text').value = '';
-    document.getElementById('diagnosis-notes').value = '';
-    document.getElementById('diagnosis-suggestion').value = '';
-    document.getElementById('diagnosis-medicines').value = '';
-    document.getElementById('diagnosis-dosage').value = '';
-    document.getElementById('diagnosis-frequency').value = '';
-    document.getElementById('diagnosis-duration').value = '';
-    document.getElementById('diagnosis-submit-btn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Diagnosis & Prescription';
+    document.getElementById('prescription-form-title').textContent = 'Add Prescription';
+    document.getElementById('prescription-action').value = 'add_prescription';
+    document.getElementById('prescription-history-id').value = '';
+    document.getElementById('prescription-medicines').value = '';
+    document.getElementById('prescription-dosage').value = '';
+    document.getElementById('prescription-frequency').value = '';
+    document.getElementById('prescription-duration').value = '';
+    document.getElementById('prescription-notes').value = '';
+    document.getElementById('prescription-submit-btn').innerHTML = '<i class="fa-solid fa-plus"></i> Save Prescription';
     document.getElementById('cancel-edit-btn').classList.add('hidden');
 }
 
@@ -237,9 +198,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRFToken': '{{ csrf_token }}',
                 },
-                body: 'status=' + status
+                body: 'status=' + encodeURIComponent(status)
             })
-            .then(function(r) { return r.json(); })
+            .then(function(r) {
+                var feedback = document.getElementById('status-feedback');
+                if (!r.ok) {
+                    return r.text().then(function(text) {
+                        throw new Error('Server error: ' + r.status + ' ' + r.statusText);
+                    });
+                }
+                return r.json();
+            })
             .then(function(data) {
                 var feedback = document.getElementById('status-feedback');
                 if (data.success) {
@@ -257,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(function(err) {
                 var feedback = document.getElementById('status-feedback');
                 feedback.className = 'p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2';
-                feedback.innerHTML = '<i class="fa-solid fa-times-circle"></i> Network error. Please try again.';
+                feedback.innerHTML = '<i class="fa-solid fa-times-circle"></i> Update failed: ' + err.message;
                 feedback.classList.remove('hidden');
                 btnText.textContent = originalText;
                 updateBtn.disabled = false;

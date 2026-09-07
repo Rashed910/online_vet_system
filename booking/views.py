@@ -18,6 +18,18 @@ PAYMENT_METHODS = [
 @login_required
 def doctors(request):
     from vet.models import Availability
+    from datetime import datetime
+
+    selected_date_str = request.GET.get('date', '').strip()
+    selected_date = None
+    weekday = None
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+            weekday = selected_date.weekday()
+        except ValueError:
+            selected_date = None
+            weekday = None
 
     doctors_list = Doctor.objects.filter(
         is_active=True,
@@ -25,6 +37,12 @@ def doctors(request):
 
     doctor_data = []
     for doc in doctors_list:
+        avail_qs = doc.availabilities.filter(is_available=True)
+        if weekday is not None:
+            avail_qs = avail_qs.filter(day_of_week=weekday)
+        has_availability = avail_qs.exists()
+        if selected_date is not None and not has_availability:
+            continue
         avail_days = list(
             doc.availabilities.filter(is_available=True)
             .values_list('day_of_week', flat=True)
@@ -37,6 +55,8 @@ def doctors(request):
 
     context = {
         'doctor_data': doctor_data,
+        'selected_date': selected_date_str,
+        'today': datetime.now().date(),
     }
     return render(request, 'doctors.html', context)
 

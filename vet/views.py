@@ -71,13 +71,25 @@ def vet_dashboard(request):
 def booked_appointments(request):
     if request.user.role != 'DOCTOR':
         return render(request, '403.html', status=403)
+    from datetime import datetime
     from patient.models import MedicalHistory
+
+    selected_date_str = request.GET.get('date', '').strip()
+    selected_date = None
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = None
+
     try:
         doctor = request.user.doctor_profile
         appointments = doctor.appointments.filter(
             payment__status='PAID',
             status__in=['CONFIRMED', 'COMPLETED'],
-        ).select_related('patient__user', 'payment')
+        ).select_related('patient__user', 'payment').order_by('date', 'time')
+        if selected_date is not None:
+            appointments = appointments.filter(date=selected_date)
         appointment_data = []
         for apt in appointments:
             histories = apt.patient.medical_histories.filter(appointment=apt).order_by('-date')
@@ -92,6 +104,8 @@ def booked_appointments(request):
     context = {
         'doctor': doctor,
         'appointment_data': appointment_data,
+        'selected_date': selected_date_str,
+        'today': datetime.now().date(),
     }
     return render(request, 'vet_booked_appointments.html', context)
 
@@ -102,7 +116,7 @@ def patient_medical_history(request):
         return render(request, '403.html', status=403)
     try:
         doctor = request.user.doctor_profile
-        appointments = doctor.appointments.all()
+        appointments = doctor.appointments.all().select_related('patient__user').prefetch_related('patient__medical_histories')
     except Exception:
         doctor = None
         appointments = []
@@ -139,14 +153,12 @@ def view_patient(request, appointment_id):
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        if action == 'add_medical_history':
-            diagnosis = request.POST.get('diagnosis', '').strip()
-            notes = request.POST.get('notes', '').strip()
-            medical_suggestion = request.POST.get('medical_suggestion', '').strip()
+        if action == 'add_prescription':
             medicines = request.POST.get('medicines', '').strip()
             dosage = request.POST.get('dosage', '').strip()
             frequency = request.POST.get('frequency', '').strip()
             duration = request.POST.get('duration', '').strip()
+            notes = request.POST.get('notes', '').strip()
             date_str = request.POST.get('date', '').strip()
             from datetime import datetime
             try:
@@ -154,50 +166,46 @@ def view_patient(request, appointment_id):
             except ValueError:
                 date_obj = datetime.now().date()
 
-            if diagnosis:
-                history = MedicalHistory.objects.create(
+            if medicines or dosage or frequency or duration:
+                MedicalHistory.objects.create(
                     patient=patient,
                     appointment=appointment,
-                    diagnosis=diagnosis,
+                    diagnosis='Consultation',
                     notes=notes,
-                    medical_suggestion=medical_suggestion,
+                    medical_suggestion='',
                     medicines=medicines,
                     dosage=dosage,
                     frequency=frequency,
                     duration=duration,
                     date=date_obj,
                 )
-                has_prescription = bool(medicines or dosage or frequency or duration)
-                if has_prescription and appointment.status not in ['COMPLETED', 'CANCELLED']:
+                if appointment.status not in ['COMPLETED', 'CANCELLED']:
                     appointment.status = 'COMPLETED'
                     appointment.save()
-                messages.success(request, 'Diagnosis, prescription and medical suggestion saved successfully.')
+                messages.success(request, 'Prescription saved successfully.')
 
-        elif action == 'edit_medical_history':
+        elif action == 'edit_prescription':
             history_id = request.POST.get('history_id')
             history = MedicalHistory.objects.filter(id=history_id, patient=patient).first()
             if history:
-                history.diagnosis = request.POST.get('diagnosis', history.diagnosis).strip()
-                history.notes = request.POST.get('notes', history.notes).strip()
-                history.medical_suggestion = request.POST.get('medical_suggestion', history.medical_suggestion).strip()
                 history.medicines = request.POST.get('medicines', history.medicines).strip()
                 history.dosage = request.POST.get('dosage', history.dosage).strip()
                 history.frequency = request.POST.get('frequency', history.frequency).strip()
                 history.duration = request.POST.get('duration', history.duration).strip()
+                history.notes = request.POST.get('notes', history.notes).strip()
                 date_str = request.POST.get('date', '').strip()
                 if date_str:
-                    from datetime import datetime
                     try:
                         history.date = datetime.strptime(date_str, '%Y-%m-%d').date()
                     except ValueError:
                         pass
                 history.save()
-                messages.success(request, 'Diagnosis, prescription and medical suggestion updated successfully.')
+                messages.success(request, 'Prescription updated successfully.')
 
-        elif action == 'delete_medical_history':
+        elif action == 'delete_prescription':
             history_id = request.POST.get('history_id')
             MedicalHistory.objects.filter(id=history_id, patient=patient).delete()
-            messages.success(request, 'Medical history deleted.')
+            messages.success(request, 'Prescription deleted.')
 
         elif action == 'update_status':
             new_status = request.POST.get('status', '')
@@ -227,31 +235,34 @@ def api_update_status(request, appointment_id):
     from booking.models import Appointment
     from django.shortcuts import get_object_or_404
 
-    appointment = get_object_or_404(Appointment, id=appointment_id)
-    if appointment.doctor.user != request.user:
-        return JsonResponse({'error': 'Not your appointment'}, status=403)
+    try:
+        appointment = get_object_or_404(Appointment, id=appointment_id)
+        if appointment.doctor.user != request.user:
+            return JsonResponse({'error': 'Not your appointment'}, status=403)
 
-    new_status = request.POST.get('status', '')
-    if new_status not in ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED']:
-        return JsonResponse({'error': 'Invalid status'}, status=400)
+        new_status = request.POST.get('status', '')
+        if new_status not in ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED']:
+            return JsonResponse({'error': 'Invalid status'}, status=400)
 
-    appointment.status = new_status
-    appointment.save()
+        appointment.status = new_status
+        appointment.save()
 
-    status_colors = {
-        'PENDING': 'amber',
-        'CONFIRMED': 'blue',
-        'COMPLETED': 'emerald',
-        'CANCELLED': 'red',
-    }
-    color = status_colors.get(new_status, 'slate')
+        status_colors = {
+            'PENDING': 'amber',
+            'CONFIRMED': 'blue',
+            'COMPLETED': 'emerald',
+            'CANCELLED': 'red',
+        }
+        color = status_colors.get(new_status, 'slate')
 
-    return JsonResponse({
-        'success': True,
-        'status': new_status,
-        'color': color,
-        'message': f'Appointment status updated to {new_status}',
-    })
+        return JsonResponse({
+            'success': True,
+            'status': new_status,
+            'color': color,
+            'message': f'Appointment status updated to {new_status}',
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @login_required

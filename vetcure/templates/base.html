@@ -217,21 +217,26 @@
                         <a href="{% url 'patient_dashboard' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'patient_dashboard' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Dashboard</a>
                         <a href="{% url 'booking_doctors' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'booking_doctors' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Find Doctor & Book</a>
                         <a href="{% url 'my_appointments' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'my_appointments' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">My Appointments</a>
+                        <a href="{% url 'my_prescriptions' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'my_prescriptions' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">My Prescriptions</a>
                         <a href="{% url 'cancel_refund_list' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'cancel_refund_list' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Cancel & Refund Slip</a>
                         <a href="{% url 'chatbot' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'chatbot' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Avian Health Chatbot</a>
                         <a href="{% url 'manage_profile' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'manage_profile' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Manage Profile</a>
+                        <a href="{% url 'contact' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'contact' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Contact</a>
                     {% elif user.role == 'DOCTOR' %}
                         <a href="{% url 'vet_dashboard' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'vet_dashboard' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Doctor Dashboard</a>
                         <a href="{% url 'vet_booked_appointments' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'vet_booked_appointments' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Booked Appointments</a>
                         <a href="{% url 'vet_patient_history' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'vet_patient_history' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Patient Medical History</a>
                         <a href="{% url 'vet_availability' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'vet_availability' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Manage Availability</a>
                         <a href="{% url 'vet_profile_settings' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'vet_profile_settings' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Profile Settings</a>
+                        <a href="{% url 'contact' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'contact' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Contact</a>
                     {% elif user.role == 'ADMIN' %}
                         <a href="/admin/" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'index' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Admin Panel</a>
+                        <a href="{% url 'contact' %}" class="nav-link px-3 py-1.5 rounded-lg {% if request.resolver_match.url_name == 'contact' %}bg-emerald-50 text-emerald-700 font-bold{% else %}hover:bg-slate-50 hover:text-emerald-600 transition{% endif %}">Contact</a>
                     {% endif %}
                 {% else %}
                     <a href="{% url 'booking_doctors' %}" class="hover:bg-slate-50 hover:text-emerald-600 transition px-3 py-1.5 rounded-lg">Find Doctor & Book</a>
                     <a href="{% url 'chatbot' %}" class="hover:bg-slate-50 hover:text-emerald-600 transition px-3 py-1.5 rounded-lg">Avian Health Chatbot</a>
+                    <a href="{% url 'contact' %}" class="hover:bg-slate-50 hover:text-emerald-600 transition px-3 py-1.5 rounded-lg">Contact</a>
                 {% endif %}
             </nav>
                 <div class="flex items-center gap-3">
@@ -301,6 +306,7 @@
                         <li><a href="{% url 'vet_dashboard' %}" class="hover:text-emerald-400 transition">Vet Panel</a></li>
                     {% endif %}
                     <li><a href="{% url 'chatbot' %}" class="hover:text-emerald-400 transition">Pet Health Assistant</a></li>
+                    <li><a href="{% url 'contact' %}" class="hover:text-emerald-400 transition">Contact Us</a></li>
                 </ul>
             </div>
             <div class="space-y-3">
@@ -322,6 +328,11 @@
                 <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 space-y-1">
                     <span class="text-emerald-400 font-bold block">90% Cancellation Refund</span>
                     <p class="text-[11px] text-slate-400">System charge: 10% on cancelled bookings.</p>
+                </div>
+                <div class="space-y-1 text-[11px] text-slate-400">
+                    <p><i class="fa-solid fa-phone text-emerald-500 mr-1"></i> +880 1799-965655</p>
+                    <p><i class="fa-solid fa-envelope text-emerald-500 mr-1"></i> support@vetcare.com</p>
+                    <p><i class="fa-solid fa-location-dot text-emerald-500 mr-1"></i> Dhaka, Bangladesh</p>
                 </div>
             </div>
         </div>

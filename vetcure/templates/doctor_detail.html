@@ -32,6 +32,9 @@
             <div class="flex-1">
                 <h1 class="text-xl font-bold text-slate-900">Dr. {{ doctor.user.get_full_name }}</h1>
                 <p class="text-sm text-emerald-600 font-medium">{{ doctor.specialty }}</p>
+                {% if doctor.qualification %}
+                <p class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-graduation-cap mr-1"></i>{{ doctor.qualification }}</p>
+                {% endif %}
                 <p class="text-xs text-slate-500 mt-1">{{ doctor.experience_years }}+ years experience | Fee: <span class="font-bold text-emerald-600">BDT {{ doctor.consultation_fee }}</span></p>
             </div>
         </div>

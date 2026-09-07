@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription - VetCare</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 2rem; }
+        .prescription-box { max-width: 800px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #059669, #047857); color: white; padding: 2rem; text-align: center; }
+        .header h1 { font-size: 1.5rem; font-weight: 700; }
+        .header p { font-size: 0.875rem; opacity: 0.9; margin-top: 0.25rem; }
+        .content { padding: 2rem; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+        .info-item { background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .info-label { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+        .info-value { font-size: 0.9375rem; color: #1e293b; font-weight: 500; }
+        .prescription-section { background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+        .prescription-section h2 { font-size: 1.125rem; font-weight: 700; color: #166534; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .medicine-item { background: white; padding: 1rem; border-radius: 8px; border: 1px solid #bbf7d0; margin-bottom: 0.75rem; }
+        .medicine-item:last-child { margin-bottom: 0; }
+        .medicine-name { font-weight: 600; color: #1e293b; margin-bottom: 0.25rem; }
+        .medicine-details { font-size: 0.875rem; color: #64748b; }
+        .footer { background: #f8fafc; padding: 1.5rem; text-align: center; border-top: 1px solid #e2e8f0; }
+        .footer p { font-size: 0.75rem; color: #64748b; }
+        .no-print { text-align: center; margin-bottom: 1rem; }
+        .no-print button { background: #059669; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+        .no-print button:hover { background: #047857; }
+        @media print { .no-print { display: none; } body { background: white; padding: 0; } .prescription-box { box-shadow: none; border-radius: 0; } }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()"><i class="fa-solid fa-print"></i> Print Prescription</button>
+    </div>
+
+    <div class="prescription-box">
+        <div class="header">
+            <h1><i class="fa-solid fa-prescription"></i> VetCare Prescription</h1>
+            <p>Professional Veterinary Healthcare</p>
+        </div>
+
+        <div class="content">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Patient Name</div>
+                    <div class="info-value">{{ prescription.patient.user.get_full_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Prescription Date</div>
+                    <div class="info-value">{{ prescription.date|date:"M d, Y" }}</div>
+                </div>
+                {% if prescription.appointment %}
+                <div class="info-item">
+                    <div class="info-label">Doctor</div>
+                    <div class="info-value">Dr. {{ prescription.appointment.doctor.user.get_full_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Specialty</div>
+                    <div class="info-value">{{ prescription.appointment.doctor.specialty }}</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="prescription-section">
+                <h2><i class="fa-solid fa-pills"></i> Prescription Details</h2>
+
+                {% if prescription.medicines %}
+                <div class="medicine-item">
+                    <div class="medicine-name">Medicines</div>
+                    <div class="medicine-details">{{ prescription.medicines|linebreaks }}</div>
+                </div>
+                {% endif %}
+
+                <div class="info-grid" style="margin-bottom: 0;">
+                    {% if prescription.dosage %}
+                    <div class="info-item">
+                        <div class="info-label">Dosage</div>
+                        <div class="info-value">{{ prescription.dosage }}</div>
+                    </div>
+                    {% endif %}
+                    {% if prescription.frequency %}
+                    <div class="info-item">
+                        <div class="info-label">Frequency</div>
+                        <div class="info-value">{{ prescription.frequency }}</div>
+                    </div>
+                    {% endif %}
+                    {% if prescription.duration %}
+                    <div class="info-item">
+                        <div class="info-label">Duration</div>
+                        <div class="info-value">{{ prescription.duration }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if prescription.notes %}
+                <div class="info-item" style="margin-top: 1rem;">
+                    <div class="info-label">Additional Notes</div>
+                    <div class="info-value">{{ prescription.notes|linebreaks }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>This prescription is generated by VetCare System. Please follow the doctor's instructions carefully.</p>
+            <p style="margin-top: 0.25rem;">Printed on {{ "now"|date:"M d, Y h:i A" }}</p>
+        </div>
+    </div>
+</body>
+</html>

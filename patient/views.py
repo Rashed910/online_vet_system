@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from patient.models import Patient
+from patient.models import Patient, MedicalHistory
 from django.contrib.auth import get_user_model
 from booking.views import validate_phone_by_country
 User = get_user_model()
@@ -14,9 +14,13 @@ def dashboard(request):
     try:
         patient = request.user.patient_profile
         appointments = patient.appointments.select_related('doctor__user', 'payment').order_by('-date', '-time')[:5]
+        prescriptions = MedicalHistory.objects.filter(
+            patient=patient
+        ).select_related('appointment__doctor__user').order_by('-date', '-created_at')[:5]
     except Patient.DoesNotExist:
         patient = None
         appointments = []
+        prescriptions = []
 
     has_pending = any(
         getattr(apt, 'payment', None) and apt.payment.status == 'PENDING' and apt.status == 'PENDING'
@@ -26,6 +30,7 @@ def dashboard(request):
     context = {
         'patient': patient,
         'appointments': appointments,
+        'prescriptions': prescriptions,
         'has_pending_payment': has_pending,
     }
     return render(request, 'dashboard.html', context)
@@ -172,3 +177,41 @@ def update_patient_profile(request):
             messages.info(request, 'No changes were made to your profile.')
 
     return redirect('manage_profile')
+
+
+@login_required
+def my_prescriptions(request):
+    if request.user.role != 'PATIENT':
+        return render(request, '403.html', status=403)
+    try:
+        patient = request.user.patient_profile
+        prescriptions = MedicalHistory.objects.filter(
+            patient=patient
+        ).select_related('appointment__doctor__user').order_by('-date', '-created_at')
+    except Patient.DoesNotExist:
+        patient = None
+        prescriptions = []
+
+    context = {
+        'patient': patient,
+        'prescriptions': prescriptions,
+    }
+    return render(request, 'my_prescriptions.html', context)
+
+
+@login_required
+def print_prescription(request, history_id):
+    if request.user.role != 'PATIENT':
+        return render(request, '403.html', status=403)
+    try:
+        patient = request.user.patient_profile
+        prescription = MedicalHistory.objects.get(id=history_id, patient=patient)
+    except (Patient.DoesNotExist, MedicalHistory.DoesNotExist):
+        messages.error(request, 'Prescription not found.')
+        return redirect('my_prescriptions')
+
+    context = {
+        'patient': patient,
+        'prescription': prescription,
+    }
+    return render(request, 'print_prescription.html', context)

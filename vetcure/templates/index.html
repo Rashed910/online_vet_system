@@ -3,64 +3,69 @@
 {% block title %}VetCare - Complete Pet Care & Consultation{% endblock %}
 
 {% block content %}
-<section class="bg-gradient-to-b from-emerald-50/50 to-slate-50 py-16 md:py-24">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div class="space-y-6">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+<section class="relative py-24 md:py-36 overflow-hidden">
+    <div class="absolute inset-0">
+        <img src="https://images.stockcake.com/public/3/b/8/3b8e012d-0a42-4a6f-9202-ac118f938c9c_large/veterinarian-examining-parrot-stockcake.jpg" alt="Veterinarian caring for pets" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-slate-900/40"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/20 to-slate-900/60"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div class="space-y-6 text-white">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">
                 Expert Veterinary Healthcare for Your Pets
             </h1>
-            <p class="text-slate-600 text-sm md:text-base leading-relaxed">
+            <p class="text-slate-200 text-sm md:text-base leading-relaxed max-w-lg">
                 Book specialist doctors, get 24/7 instant advice from AI Chatbot, track health history, and ensure guaranteed 90% refunds on cancellations.
             </p>
             <div class="flex flex-wrap gap-4 pt-2">
                 {% if user.is_authenticated %}
                     {% if user.role == 'PATIENT' %}
-                        <a href="{% url 'booking_doctors' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+                        <a href="{% url 'booking_doctors' %}" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-lg flex items-center gap-2">
                             <i class="fa-solid fa-calendar-check"></i> Book Consultation
                         </a>
-                        <a href="{% url 'patient_dashboard' %}" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-sm font-semibold px-6 py-3 rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-user text-emerald-600"></i> My Dashboard
+                        <a href="{% url 'patient_dashboard' %}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white text-sm font-semibold px-6 py-3 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-user text-emerald-300"></i> My Dashboard
                         </a>
                     {% elif user.role == 'DOCTOR' %}
-                        <a href="{% url 'vet_dashboard' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+                        <a href="{% url 'vet_dashboard' %}" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-lg flex items-center gap-2">
                             <i class="fa-solid fa-stethoscope"></i> Go to Vet Panel
                         </a>
                     {% elif user.role == 'ADMIN' %}
-                        <a href="/admin/" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+                        <a href="/admin/" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-lg flex items-center gap-2">
                             <i class="fa-solid fa-gear"></i> Admin Panel
                         </a>
                     {% endif %}
                 {% else %}
-                    <a href="{% url 'booking_doctors' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-md flex items-center gap-2">
+                    <a href="{% url 'booking_doctors' %}" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-6 py-3 rounded-xl transition shadow-lg flex items-center gap-2">
                         <i class="fa-solid fa-calendar-check"></i> Book Consultation
                     </a>
-                    <a href="{% url 'chatbot' %}" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-sm font-semibold px-6 py-3 rounded-xl transition flex items-center gap-2">
-                        <i class="fa-solid fa-robot text-emerald-600"></i> Try AI Assistant
+                    <a href="{% url 'chatbot' %}" class="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white text-sm font-semibold px-6 py-3 rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-emerald-300"></i> Try AI Assistant
                     </a>
                 {% endif %}
             </div>
         </div>
         <div class="flex justify-center">
-            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl max-w-sm w-full space-y-4">
-                <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <i class="fa-solid fa-user-doctor text-3xl text-emerald-600"></i>
+            <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl">
+                <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl border border-white/10">
+                    <i class="fa-solid fa-user-doctor text-3xl text-emerald-400"></i>
                     <div>
-                        <h3 class="font-bold text-sm text-slate-900">Certified Pet Veterinarians</h3>
-                        <p class="text-xs text-slate-500">Expert care for all your pets</p>
+                        <h3 class="font-bold text-sm text-white">Certified Pet Veterinarians</h3>
+                        <p class="text-xs text-slate-300">Expert care for all your pets</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <i class="fa-solid fa-bolt text-3xl text-amber-500"></i>
+                <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl border border-white/10">
+                    <i class="fa-solid fa-bolt text-3xl text-amber-400"></i>
                     <div>
-                        <h3 class="font-bold text-sm text-slate-900">Instant AI Diagnosis</h3>
-                        <p class="text-xs text-slate-500">24/7 First-aid recommendations</p>
+                        <h3 class="font-bold text-sm text-white">Instant AI Diagnosis</h3>
+                        <p class="text-xs text-slate-300">24/7 First-aid recommendations</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <i class="fa-solid fa-shield-halved text-3xl text-blue-600"></i>
+                <div class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl border border-white/10">
+                    <i class="fa-solid fa-shield-halved text-3xl text-blue-400"></i>
                     <div>
-                        <h3 class="font-bold text-sm text-slate-900">90% Refund Guarantee</h3>
-                        <p class="text-xs text-slate-500">Easy booking cancellations</p>
+                        <h3 class="font-bold text-sm text-white">90% Refund Guarantee</h3>
+                        <p class="text-xs text-slate-300">Easy booking cancellations</p>
                     </div>
                 </div>
             </div>
@@ -68,35 +73,35 @@
     </div>
 </section>
 
-<section class="max-w-7xl mx-auto px-4 py-16">
-    <div class="text-center max-w-2xl mx-auto mb-12 space-y-2">
-        <h2 class="text-2xl font-bold text-slate-900">Comprehensive Features</h2>
-        <p class="text-slate-500 text-xs md:text-sm">Everything you need to manage your pet's health seamlessly.</p>
+<section class="max-w-7xl mx-auto px-4 py-20">
+    <div class="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <h2 class="text-3xl font-bold text-slate-900">Comprehensive Features</h2>
+        <p class="text-slate-500 text-sm md:text-base">Everything you need to manage your pet's health seamlessly.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:shadow-md transition">
-            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-lg">
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-xl transition group">
+            <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition">
                 <i class="fa-solid fa-laptop-medical"></i>
             </div>
-            <h3 class="font-bold text-slate-900 text-base">Patient Portal</h3>
-            <p class="text-slate-500 text-xs leading-relaxed">Track medical history, active prescriptions, vaccine dates, and past receipts in one place.</p>
-            <a href="{% url 'patient_dashboard' %}" class="text-xs text-emerald-600 font-semibold hover:underline inline-block pt-2">Go to Portal &rarr;</a>
+            <h3 class="font-bold text-slate-900 text-lg">Patient Portal</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Track medical history, active prescriptions, vaccine dates, and past receipts in one place.</p>
+            <a href="{% url 'patient_dashboard' %}" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Go to Portal &rarr;</a>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:shadow-md transition">
-            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-lg">
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-xl transition group">
+            <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition">
                 <i class="fa-solid fa-user-nurse"></i>
             </div>
-            <h3 class="font-bold text-slate-900 text-base">Doctor Scheduling</h3>
-            <p class="text-slate-500 text-xs leading-relaxed">Filter top specialist doctors, choose custom time slots, and pay online securely.</p>
-            <a href="{% url 'booking_doctors' %}" class="text-xs text-emerald-600 font-semibold hover:underline inline-block pt-2">Book Doctor &rarr;</a>
+            <h3 class="font-bold text-slate-900 text-lg">Doctor Scheduling</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Filter top specialist doctors, choose custom time slots, and pay online securely.</p>
+            <a href="{% url 'booking_doctors' %}" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Book Doctor &rarr;</a>
         </div>
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 hover:shadow-md transition">
-            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-lg">
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-xl transition group">
+            <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition">
                 <i class="fa-solid fa-headset"></i>
             </div>
-            <h3 class="font-bold text-slate-900 text-base">AI Medical Assistant</h3>
-            <p class="text-slate-500 text-xs leading-relaxed">Describe pet symptoms to get immediate preliminary guidance and emergency action steps.</p>
-            <a href="{% url 'chatbot' %}" class="text-xs text-emerald-600 font-semibold hover:underline inline-block pt-2">Start Chat &rarr;</a>
+            <h3 class="font-bold text-slate-900 text-lg">AI Medical Assistant</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Describe pet symptoms to get immediate preliminary guidance and emergency action steps.</p>
+            <a href="{% url 'chatbot' %}" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Start Chat &rarr;</a>
         </div>
     </div>
 </section>

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}My Prescriptions - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-5xl w-full mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">My Prescriptions</h1>
+
+    {% if prescriptions %}
+    <div class="space-y-4">
+        {% for prescription in prescriptions %}
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">
+                        {% if prescription.appointment %}
+                            Dr. {{ prescription.appointment.doctor.user.get_full_name }}
+                        {% else %}
+                            General Consultation
+                        {% endif %}
+                    </h3>
+                    <p class="text-xs text-slate-500">
+                        {{ prescription.date|date:"M d, Y" }}
+                        {% if prescription.appointment %}
+                        at {{ prescription.appointment.time|time:"h:i A" }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="{% url 'print_prescription' prescription.id %}" target="_blank" class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">
+                        <i class="fa-solid fa-print"></i> Print
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+                {% if prescription.medicines %}
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Medicines</span>
+                    <p class="text-xs text-slate-700 mt-0.5">{{ prescription.medicines|linebreaks }}</p>
+                </div>
+                {% endif %}
+                {% if prescription.dosage %}
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dosage</span>
+                    <p class="text-xs text-slate-700 mt-0.5">{{ prescription.dosage }}</p>
+                </div>
+                {% endif %}
+                {% if prescription.frequency %}
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Frequency</span>
+                    <p class="text-xs text-slate-700 mt-0.5">{{ prescription.frequency }}</p>
+                </div>
+                {% endif %}
+                {% if prescription.duration %}
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duration</span>
+                    <p class="text-xs text-slate-700 mt-0.5">{{ prescription.duration }}</p>
+                </div>
+                {% endif %}
+                {% if prescription.notes %}
+                <div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Notes</span>
+                    <p class="text-xs text-slate-700 mt-0.5">{{ prescription.notes|linebreaks }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm text-center">
+        <i class="fa-solid fa-prescription text-4xl text-slate-300 mb-3"></i>
+        <p class="text-slate-500 text-sm">No prescriptions yet.</p>
+        <p class="text-slate-400 text-xs mt-1">Your prescriptions will appear here after your doctor creates them.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

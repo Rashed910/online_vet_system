@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - VetCare{% endblock %}
+
+{% block content %}
+<div class="flex-grow max-w-5xl w-full mx-auto px-4 py-12">
+    <div class="text-center mb-12 space-y-3">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900">Contact Us</h1>
+        <p class="text-slate-500 text-sm md:text-base">Have questions? Reach out to us anytime. We're here to help you and your pets.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center space-y-3 hover:shadow-md transition">
+            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-xl mx-auto">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+            <h3 class="font-bold text-slate-900">Phone</h3>
+            <p class="text-slate-600 text-sm">+880 1799-965655</p>
+            
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center space-y-3 hover:shadow-md transition">
+            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-xl mx-auto">
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+            <h3 class="font-bold text-slate-900">Email</h3>
+            <p class="text-slate-600 text-sm">support@vetcare.com</p>
+            <p class="text-slate-500 text-xs">We reply within 24 hours</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center space-y-3 hover:shadow-md transition">
+            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-xl mx-auto">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <h3 class="font-bold text-slate-900">Location</h3>
+            <p class="text-slate-600 text-sm">123 Vet Care Road, Dhaka</p>
+            <p class="text-slate-500 text-xs">Bangladesh</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

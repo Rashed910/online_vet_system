@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}Patient Medical History - VetCare{% endblock %}
+{% block title %}Patient Prescriptions - VetCare{% endblock %}
 
 {% block content %}
 <div class="flex-grow max-w-7xl w-full mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold text-slate-900 mb-6">Patient Medical History</h1>
+    <h1 class="text-2xl font-bold text-slate-900 mb-6">Patient Prescriptions</h1>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-600">
@@ -12,31 +12,46 @@
                     <tr>
                         <th class="p-3">SL#</th>
                         <th class="p-3">Date</th>
-                        <th class="p-3">Owner Name</th>
-                        <th class="p-3">Diagnosis</th>
-                        <th class="p-3">Medical Suggestion</th>
+                        <th class="p-3">Time</th>
+                        <th class="p-3">Patient</th>
+                        <th class="p-3">Doctor</th>
+                        <th class="p-3">Prescription</th>
+                        <th class="p-3">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     {% for appointment in appointments %}
+                    {% with histories=appointment.patient.medical_histories.all %}
+                    {% for history in histories %}
                     <tr>
-                        <td class="p-3 font-semibold text-slate-800">{{ forloop.counter }}</td>
-                        <td class="p-3">{{ appointment.date|date:"M d, Y" }}</td>
+                        <td class="p-3 font-semibold text-slate-800">{{ forloop.parentloop.counter }}</td>
+                        <td class="p-3">{{ history.date|date:"M d, Y" }}</td>
+                        <td class="p-3">{{ appointment.time|time:"h:i A" }}</td>
                         <td class="p-3">{{ appointment.patient.user.get_full_name }}</td>
-                        <td class="p-3 text-slate-600">{{ appointment.patient.medical_history|default:"No records"|truncatewords:10 }}</td>
+                        <td class="p-3">{{ appointment.doctor.user.get_full_name }}</td>
                         <td class="p-3">
-                            {% with last_history=appointment.patient.medical_histories.first %}
-                                {% if last_history and last_history.medical_suggestion %}
-                                    <span class="inline-block bg-emerald-50 border border-emerald-200 text-emerald-800 px-2 py-1 rounded-lg text-[10px] font-semibold">{{ last_history.medical_suggestion|truncatewords:12 }}</span>
-                                {% else %}
-                                    <span class="text-slate-400 text-[10px]">—</span>
-                                {% endif %}
-                            {% endwith %}
+                            {% if history.medicines %}
+                            <p class="font-semibold text-slate-800">{{ history.medicines|truncatewords:8 }}</p>
+                            {% else %}
+                            <span class="text-slate-400">General Consultation</span>
+                            {% endif %}
+                            {% if history.dosage %}<p class="text-slate-500 text-[10px]">Dosage: {{ history.dosage }}</p>{% endif %}
+                        </td>
+                        <td class="p-3">
+                            <a href="{% url 'print_prescription' history.id %}" target="_blank" class="text-emerald-600 hover:underline text-[11px] font-semibold">
+                                <i class="fa-solid fa-print"></i> Print
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="p-6 text-center text-slate-500">No patient records found.</td>
+                        <td colspan="7" class="p-6 text-center text-slate-500">No prescriptions found for this appointment.</td>
+                    </tr>
+                    {% endfor %}
+                    {% endwith %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="p-6 text-center text-slate-500">No appointments found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
