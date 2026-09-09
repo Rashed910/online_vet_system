@@ -31,9 +31,22 @@ def doctors(request):
             selected_date = None
             weekday = None
 
+    selected_specialty = request.GET.get('specialty', '').strip()
+
     doctors_list = Doctor.objects.filter(
         is_active=True,
     ).select_related('user').order_by('user__first_name')
+
+    if selected_specialty:
+        doctors_list = doctors_list.filter(specialty__icontains=selected_specialty)
+
+    all_specialties = list(
+        Doctor.objects.filter(is_active=True)
+        .exclude(specialty__exact='')
+        .values_list('specialty', flat=True)
+        .distinct()
+        .order_by()
+    )
 
     doctor_data = []
     for doc in doctors_list:
@@ -56,6 +69,8 @@ def doctors(request):
     context = {
         'doctor_data': doctor_data,
         'selected_date': selected_date_str,
+        'selected_specialty': selected_specialty,
+        'all_specialties': all_specialties,
         'today': datetime.now().date(),
     }
     return render(request, 'doctors.html', context)

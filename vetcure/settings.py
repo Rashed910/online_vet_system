@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -138,5 +139,41 @@ MESSAGE_TAGS = {
 
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'login'
+
+# Jazzmin Admin Settings
+JAZZMIN_SETTINGS = {
+    'site_title': 'VetCare Admin',
+    'site_header': 'VetCare',
+    'site_brand': 'VetCare',
+    'site_logo': 'fa-solid fa-dove',
+    'site_icon': 'fa-solid fa-dove',
+    'welcome_sign': 'Welcome to VetCare Admin Panel',
+    'copyright': 'VetCare System',
+    'topmenu_links': [
+        {'name': 'Home', 'url': 'admin:index'},
+        {'name': 'VetCare', 'url': '/'},
+    ],
+    'order_with_respect_to': ['auth', 'vet', 'patient', 'booking', 'chatbot'],
+    'icons': {
+        'auth.user': 'fas fa-user',
+        'auth.group': 'fas fa-users-cog',
+        'vet.doctor': 'fas fa-user-md',
+        'vet.availability': 'fas fa-clock',
+        'patient.patient': 'fas fa-paw',
+        'patient.medicalhistory': 'fas fa-notes-medical',
+        'booking.appointment': 'fas fa-calendar-check',
+        'booking.payment': 'fas fa-credit-card',
+        'booking.refund': 'fas fa-rotate-left',
+        'chatbot.chatmessage': 'fas fa-comment-dots',
+    },
+    'default_icon': 'fas fa-solid fa-circle',
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'navbar_small_text': True,
+    'footer_small_text': True,
+    'body_background_color': 'var(--bs-body-bg)',
+    'brand_colour': 'navbar-success',
+}
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'

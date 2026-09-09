@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}VetCare - Complete Pet Care & Consultation{% endblock %}
 
@@ -85,7 +86,11 @@
             </div>
             <h3 class="font-bold text-slate-900 text-lg">Patient Portal</h3>
             <p class="text-slate-500 text-sm leading-relaxed">Track medical history, active prescriptions, vaccine dates, and past receipts in one place.</p>
+            {% if user.is_authenticated and user.role == 'PATIENT' %}
             <a href="{% url 'patient_dashboard' %}" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Go to Portal &rarr;</a>
+            {% else %}
+            <a href="{% url 'login' %}?next=patient_dashboard" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Login to Portal &rarr;</a>
+            {% endif %}
         </div>
         <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-xl transition group">
             <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition">
@@ -93,7 +98,11 @@
             </div>
             <h3 class="font-bold text-slate-900 text-lg">Doctor Scheduling</h3>
             <p class="text-slate-500 text-sm leading-relaxed">Filter top specialist doctors, choose custom time slots, and pay online securely.</p>
-            <a href="{% url 'booking_doctors' %}" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Book Doctor &rarr;</a>
+            {% if user.is_authenticated and user.role == 'DOCTOR' %}
+            <a href="{% url 'vet_dashboard' %}" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Go to Vet Panel &rarr;</a>
+            {% else %}
+            <a href="{% url 'login' %}?next=vet_dashboard" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Login as Doctor &rarr;</a>
+            {% endif %}
         </div>
         <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 hover:shadow-xl transition group">
             <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-2xl group-hover:bg-emerald-600 group-hover:text-white transition">
@@ -104,5 +113,87 @@
             <a href="{% url 'chatbot' %}" class="text-sm text-emerald-600 font-semibold hover:underline inline-block pt-1">Start Chat &rarr;</a>
         </div>
     </div>
+</section>
+
+<!-- Available Veterinarians -->
+<section id="veterinarians" class="max-w-7xl mx-auto px-4 py-20">
+    <div class="text-center max-w-2xl mx-auto mb-14 space-y-3">
+        <h2 class="text-3xl font-bold text-slate-900">Available Veterinarians</h2>
+        <p class="text-slate-500 text-sm md:text-base">Meet our certified veterinary doctors. Login required to book appointments.</p>
+        {% if user.is_authenticated %}
+        <form method="get" class="mt-4">
+            <div class="flex max-w-md mx-auto">
+                <select name="doctor_search" onchange="this.form.submit()" class="flex-1 px-4 py-2.5 border border-slate-300 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                    <option value="">All Veterinarians</option>
+                    {% for spec in specialties %}
+                    <option value="{{ spec }}" {% if doctor_search == spec %}selected{% endif %}>{{ spec }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-r-xl text-sm font-semibold transition">
+                    <i class="fa-solid fa-magnifying-glass"></i> Filter
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <p class="text-xs text-slate-400 mt-2">Login to use filter and book appointments</p>
+        {% endif %}
+    </div>
+    {% if doctor_data %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for data in doctor_data %}
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl">
+                    {{ data.doctor.user.get_full_name|first|upper }}
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg text-slate-900">Dr. {{ data.doctor.user.get_full_name }}</h3>
+                    <p class="text-xs text-slate-500">{{ data.doctor.specialty }}</p>
+                </div>
+                <span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full font-medium">
+                    {{ data.doctor.experience_years }} yrs
+                </span>
+            </div>
+            <div class="space-y-1 text-xs">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Qualification</span>
+                    <span class="text-slate-800 font-medium">{{ data.doctor.qualification|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">License</span>
+                    <span class="text-slate-800 font-mono">{{ data.doctor.license_number|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Consultation Fee</span>
+                    <span class="text-slate-800 font-semibold">BDT {{ data.doctor.consultation_fee|floatformat:2 }}</span>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-1 pt-2">
+                {% for day_num in data.available_days %}
+                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                    {{ day_num|day_name }}
+                </span>
+                {% empty %}
+                <span class="text-[10px] text-slate-400">No availability</span>
+                {% endfor %}
+            </div>
+            {% if user.is_authenticated and user.role == 'PATIENT' %}
+            <a href="{% url 'booking_doctors' %}" class="block w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 rounded-xl transition text-center">
+                Book Appointment
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}?next=booking_doctors" class="block w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2.5 rounded-xl transition text-center">
+                Login to Book
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fa-solid fa-user-md text-4xl text-slate-300 mb-3"></i>
+        <p class="text-slate-500">No veterinarians available at the moment.</p>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

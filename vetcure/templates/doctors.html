@@ -9,8 +9,15 @@
                 <h1 class="text-2xl font-bold text-slate-900">Available Veterinarians</h1>
                 <p class="text-slate-500 text-xs mt-1">Browse our specialists and choose a doctor to book your appointment.</p>
             </div>
-            <form method="get" class="flex items-center gap-2">
-                <label class="text-xs font-semibold text-slate-700">Filter by date:</label>
+            <form method="get" class="flex items-center gap-2 flex-wrap">
+                <label class="text-xs font-semibold text-slate-700">Specialty:</label>
+                <select name="specialty" onchange="this.form.submit()" class="border border-slate-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500">
+                    <option value="">All Specialties</option>
+                    {% for spec in all_specialties %}
+                    <option value="{{ spec }}" {% if selected_specialty == spec %}selected{% endif %}>{{ spec }}</option>
+                    {% endfor %}
+                </select>
+                <label class="text-xs font-semibold text-slate-700">Date:</label>
                 <input type="date" name="date" value="{{ selected_date|default:'' }}" min="{{ today|date:'Y-m-d' }}" class="border border-slate-200 rounded-xl p-2 text-xs outline-none focus:ring-1 focus:ring-emerald-500">
                 <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm">Filter</button>
             </form>

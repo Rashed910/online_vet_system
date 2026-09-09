@@ -147,6 +147,9 @@
                 <a href="{% url 'chatbot' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'chatbot' %}active{% endif %}">
                     <i class="fa-solid fa-robot w-4 text-center text-emerald-600"></i> Avian Health Chatbot
                 </a>
+                <a href="{% url 'home' %}#veterinarians" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200">
+                    <i class="fa-solid fa-user-md w-4 text-center text-emerald-600"></i> Our Veterinarians
+                </a>
                 <a href="{% url 'manage_profile' %}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 transition-all duration-200 {% if request.resolver_match.url_name == 'manage_profile' %}active{% endif %}">
                     <i class="fa-solid fa-user-gear w-4 text-center text-emerald-600"></i> Manage Profile
                 </a>
@@ -232,6 +235,7 @@
                     {% endif %}
                 {% else %}
                     <a href="{% url 'booking_doctors' %}" class="hover:bg-slate-50 hover:text-emerald-600 transition px-3 py-1.5 rounded-lg">Find Doctor & Book</a>
+                    <a href="{% url 'home' %}#veterinarians" class="hover:bg-slate-50 hover:text-emerald-600 transition px-3 py-1.5 rounded-lg">Veterinarians</a>
                     <a href="{% url 'chatbot' %}" class="hover:bg-slate-50 hover:text-emerald-600 transition px-3 py-1.5 rounded-lg">Avian Health Chatbot</a>
                     <a href="{% url 'contact' %}" class="hover:bg-slate-50 hover:text-emerald-600 transition px-3 py-1.5 rounded-lg">Contact</a>
                 {% endif %}
@@ -297,6 +301,7 @@
                 <h4 class="text-sm font-semibold text-white">Quick Links</h4>
                 <ul class="space-y-2">
                     <li><a href="{% url 'home' %}" class="hover:text-emerald-400 transition">Home Page</a></li>
+                    <li><a href="{% url 'home' %}#veterinarians" class="hover:text-emerald-400 transition">Our Veterinarians</a></li>
                     {% if user.is_authenticated and user.role == 'PATIENT' %}
                         <li><a href="{% url 'patient_dashboard' %}" class="hover:text-emerald-400 transition">Patient Portal</a></li>
                         <li><a href="{% url 'booking_doctors' %}" class="hover:text-emerald-400 transition">Book Specialist Vets</a></li>

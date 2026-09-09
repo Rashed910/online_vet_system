@@ -1,0 +1,2 @@
+LANG: bn
+MATCHED: antibiotic|antibiotics|অ্যান্টিবায়োটিক|medicine|drug|tablet|pill
