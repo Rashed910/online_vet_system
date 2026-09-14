@@ -8,7 +8,7 @@ class User(AbstractUser):
         ('ADMIN', 'Admin'),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='PATIENT')
-    phone = models.CharField(max_length=20, blank=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     country_code = models.CharField(max_length=5, default='+880', blank=True)
     address = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

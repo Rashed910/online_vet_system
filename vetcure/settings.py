@@ -145,7 +145,7 @@ JAZZMIN_SETTINGS = {
     'site_title': 'VetCare Admin',
     'site_header': 'VetCare',
     'site_brand': 'VetCare',
-    'site_logo': 'fa-solid fa-dove',
+    'site_logo': None,
     'site_icon': 'fa-solid fa-dove',
     'welcome_sign': 'Welcome to VetCare Admin Panel',
     'copyright': 'VetCare System',

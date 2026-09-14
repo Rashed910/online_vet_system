@@ -1,0 +1,3 @@
+Message lower: কুকুর বা বিড়াল কিছু না খেলে ঘরে বসে প্রাথমিক কি চিকিৎসা দেওয়া যায়?
+
+not_eating keywords:\n  - 'not eating': NOT matched\n  - 'anorexia': NOT matched\n  - 'refuses food': NOT matched\n  - "won't eat": NOT matched\n  - 'loss of appetite': NOT matched\n  - 'khaya nai': NOT matched\n  - 'খায় না': NOT matched\n  - 'খাবার খায় না': NOT matched\n  - 'খেলে না': NOT matched\n  - 'খাবার খেলে না': NOT matched\n  - 'খাদ্য না নেয়': NOT matched\n  - 'অনোরেক্সিয়া': NOT matched\n  - 'অনুখাদ্য': NOT matched\n  - 'ভুক কম': NOT matched\n  - 'নাকাচ্ছে না': NOT matched\n

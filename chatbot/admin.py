@@ -1,20 +1,5 @@
 from django.contrib import admin
-from .models import DiseaseInfo, SymptomKeyword, ChatMessage
-
-@admin.register(DiseaseInfo)
-class DiseaseInfoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'category', 'is_common', 'created_at')
-    list_filter = ('category', 'is_common', 'created_at')
-    search_fields = ('name', 'description', 'symptoms')
-    ordering = ('-created_at',)
-    readonly_fields = ('created_at',)
-
-@admin.register(SymptomKeyword)
-class SymptomKeywordAdmin(admin.ModelAdmin):
-    list_display = ('id', 'keyword', 'disease')
-    list_filter = ('disease__category',)
-    search_fields = ('keyword', 'disease__name')
-    ordering = ('keyword',)
+from .models import ChatMessage
 
 @admin.register(ChatMessage)
 class ChatMessageAdmin(admin.ModelAdmin):

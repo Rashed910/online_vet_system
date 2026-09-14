@@ -1,0 +1,25 @@
+/* Hide logo images in admin header and sidebar */
+.brand-image,
+.brand-link img,
+.navbar-brand img,
+.sidebar-brand img,
+.logo img,
+img[alt*="logo" i],
+img[alt*="brand" i],
+[class*="brand"] img,
+[class*="logo"] img {
+    display: none !important;
+}
+
+/* Hide dove icon specifically */
+.fa-dove,
+.fa-solid.fa-dove,
+.fas.fa-dove {
+    display: none !important;
+}
+
+/* Ensure brand text is visible without logo */
+.brand-link,
+.navbar-brand {
+    padding-left: 0 !important;
+}
