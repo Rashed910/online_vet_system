@@ -318,23 +318,27 @@ def manage_availability(request):
             start_time = request.POST.get('start_time', '')
             end_time = request.POST.get('end_time', '')
             from datetime import datetime
-            try:
-                start_obj = datetime.strptime(start_time, '%H:%M').time()
-                end_obj = datetime.strptime(end_time, '%H:%M').time()
-                if start_obj >= end_obj:
-                    messages.error(request, 'End time must be after start time.')
-                else:
-                    from vet.models import Availability
-                    Availability.objects.create(
-                        doctor=doctor,
-                        day_of_week=day_of_week,
-                        start_time=start_obj,
-                        end_time=end_obj,
-                        is_available=True,
-                    )
-                    messages.success(request, 'Availability slot added successfully.')
-            except ValueError:
-                messages.error(request, 'Invalid time format.')
+            from vet.models import Availability
+            # Check if day already exists for this doctor
+            if Availability.objects.filter(doctor=doctor, day_of_week=day_of_week).exists():
+                messages.error(request, 'Availability for this day already exists. Please edit the existing slot instead.')
+            else:
+                try:
+                    start_obj = datetime.strptime(start_time, '%H:%M').time()
+                    end_obj = datetime.strptime(end_time, '%H:%M').time()
+                    if start_obj >= end_obj:
+                        messages.error(request, 'End time must be after start time.')
+                    else:
+                        Availability.objects.create(
+                            doctor=doctor,
+                            day_of_week=day_of_week,
+                            start_time=start_obj,
+                            end_time=end_obj,
+                            is_available=True,
+                        )
+                        messages.success(request, 'Availability slot added successfully.')
+                except ValueError:
+                    messages.error(request, 'Invalid time format.')
 
         elif action == 'delete' and doctor:
             slot_id = request.POST.get('slot_id')

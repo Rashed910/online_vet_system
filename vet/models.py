@@ -35,4 +35,4 @@ class Availability(models.Model):
         return f"{self.doctor} - {self.get_day_of_week_display()} {self.start_time}-{self.end_time}"
 
     class Meta:
-        unique_together = ('doctor', 'day_of_week', 'start_time')
+        unique_together = ('doctor', 'day_of_week')

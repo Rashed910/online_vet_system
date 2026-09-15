@@ -28,7 +28,7 @@ class MedicalHistoryInline(admin.TabularInline):
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ('user', 'pet_name', 'species', 'breed', 'age', 'weight', 'created_at', 'prescriptions_count')
+    list_display = ('id','user', 'created_at', 'prescriptions_count')
     list_filter = ('species', 'created_at')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'pet_name', 'species')
     readonly_fields = ('created_at', 'prescriptions_display')

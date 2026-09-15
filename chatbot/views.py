@@ -78,7 +78,7 @@ PET_HEALTH_KNOWLEDGE = {
             )
         },
 'not_eating': {
-            'keywords': ['not eating', 'anorexia', 'refuses food', "won't eat", 'loss of appetite', 'khaya nai', 'খায় না', 'খাবার খায় না', 'খেলে না', 'খাবার খেলে না', 'খাদ্য না নেয়', 'খেলে', 'খাদ্য বর্জন', 'অনোরেক্সিয়া', 'অনুখাদ্য', 'ভুক কম', 'নাকাচ্ছে না'],
+            'keywords': ['not eating', 'anorexia', 'refuses food', "won't eat", 'loss of appetite', 'khaya nai', 'খায় না', 'খাবার খায় না', 'খেলে না', 'খাবার খেলে না', 'খাদ্য না নেয়', 'খাদ্য বর্জন', 'অনোরেক্সিয়া', 'অনুখাদ্য', 'ভুক কম', 'নাকাচ্ছে না'],
             'reply': (
                 "Pet not eating - possible causes:\n"
                 "• Dental pain (broken tooth, gingivitis)\n"
@@ -205,11 +205,23 @@ def detect_language(message):
 def find_knowledge_match(message, lang='en'):
     msg_lower = message.lower()
     knowledge = PET_HEALTH_KNOWLEDGE['en']
+    
+    best_match = None
+    best_score = 0
+    
     for category, data in knowledge.items():
         for kw in data['keywords']:
-            if re.search(kw, msg_lower, re.IGNORECASE):
-                return data['reply']
-    return None
+            kw_lower = kw.lower()
+            # Use word boundaries for more precise matching
+            pattern = r'\b' + re.escape(kw_lower) + r'\b'
+            if re.search(pattern, msg_lower):
+                # Score based on keyword length (more specific = higher score)
+                score = len(kw_lower)
+                if score > best_score:
+                    best_score = score
+                    best_match = data['reply']
+    
+    return best_match
 
 
 def is_unsafe_response(reply):
