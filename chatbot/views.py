@@ -212,14 +212,26 @@ def find_knowledge_match(message, lang='en'):
     for category, data in knowledge.items():
         for kw in data['keywords']:
             kw_lower = kw.lower()
-            # Use word boundaries for more precise matching
-            pattern = r'\b' + re.escape(kw_lower) + r'\b'
-            if re.search(pattern, msg_lower):
-                # Score based on keyword length (more specific = higher score)
-                score = len(kw_lower)
-                if score > best_score:
-                    best_score = score
-                    best_match = data['reply']
+            # Check if keyword contains non-ASCII characters (Bangla)
+            has_bangla = any(ord(c) > 127 for c in kw_lower)
+            
+            if has_bangla:
+                # For Bangla keywords, use simple substring matching with boundary checks
+                # Match at word boundaries (space, punctuation, start/end of string)
+                pattern = r'(^|[\s\W])' + re.escape(kw_lower) + r'($|[\s\W])'
+                if re.search(pattern, msg_lower):
+                    score = len(kw_lower)
+                    if score > best_score:
+                        best_score = score
+                        best_match = data['reply']
+            else:
+                # For English keywords, use word boundaries
+                pattern = r'\b' + re.escape(kw_lower) + r'\b'
+                if re.search(pattern, msg_lower):
+                    score = len(kw_lower)
+                    if score > best_score:
+                        best_score = score
+                        best_match = data['reply']
     
     return best_match
 
